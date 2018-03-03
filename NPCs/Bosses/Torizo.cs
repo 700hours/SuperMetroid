@@ -170,8 +170,9 @@ namespace SuperMetroid.NPCs.Bosses
 				int type = mod.ProjectileType("TorizoBeam");
 				int num54 = Projectile.NewProjectile(vector8.X, vector8.Y-64, 6.0f*npc.spriteDirection, 0, type, damage, 0f, Main.myPlayer, -1, -1);
 				Main.projectile[num54].tileCollide=true;
-				Main.projectile[num54].timeLeft = 200;
-				Main.projectile[num54].aiStyle=1;
+				Main.projectile[num54].timeLeft = 240;
+				Main.projectile[num54].rotation = 90*npc.spriteDirection;
+				Main.projectile[num54].aiStyle=-1;
 				}
 				else
 				{
@@ -182,8 +183,9 @@ namespace SuperMetroid.NPCs.Bosses
 				int type = mod.ProjectileType("TorizoBeam");
 				int num54 = Projectile.NewProjectile(vector8.X, vector8.Y-32, 6.0f*npc.spriteDirection, 0, type, damage, 0f, Main.myPlayer, -1, -1);
 				Main.projectile[num54].tileCollide=true;
-				Main.projectile[num54].timeLeft = 200;
-				Main.projectile[num54].aiStyle=1;
+				Main.projectile[num54].timeLeft = 240;
+				Main.projectile[num54].rotation = 90*npc.spriteDirection;
+				Main.projectile[num54].aiStyle=-1;
 				}
 			}
 			if(AItimer == 704 && AIevent == 0)
@@ -235,7 +237,7 @@ namespace SuperMetroid.NPCs.Bosses
 				Vector2 vector8 = new Vector2(npc.position.X + (npc.width * 0.5f), npc.position.Y + (npc.height / 2));
 				int damage = 8;
 				int type = mod.ProjectileType("TorizoBomb");
-				int num54 = Projectile.NewProjectile(vector8.X, vector8.Y-30,Main.rand.Next(4)*2*npc.spriteDirection,Main.rand.Next(3), type, damage, 0.5f, Main.myPlayer);
+				int num54 = Projectile.NewProjectile(vector8.X, vector8.Y-30,(Main.rand.Next(4)+1)*2*npc.spriteDirection,Main.rand.Next(3), type, damage, 0.5f, Main.myPlayer);
 				Main.projectile[num54].timeLeft = 200;
 				Main.projectile[num54].tileCollide=true;
 				Main.projectile[num54].aiStyle=1;
@@ -251,7 +253,7 @@ namespace SuperMetroid.NPCs.Bosses
 				float dustScale = 1.0f;
 				for(int i = 0; i < dustCount; i++)
 				{
-					Dust.NewDust(npc.position, (npc.width/2-5)*(npc.spriteDirection), npc.height/4+10, dustID, npc.velocity.X * 0.2f, npc.velocity.Y * 0.2f, 100, Color.White, dustScale);
+					Dust.NewDust(npc.position, (int)(npc.width/1.4f)*(npc.spriteDirection), npc.height/4+16, dustID, npc.velocity.X * 0.2f, npc.velocity.Y * 0.2f, 100, Color.White, dustScale);
 				}
 			}
 			if(Main.rand.Next(30) == 0 && npc.life >= 20 && npc.life < 45)

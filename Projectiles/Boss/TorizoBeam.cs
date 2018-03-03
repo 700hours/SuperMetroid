@@ -24,6 +24,7 @@ namespace SuperMetroid.Projectiles.Boss
 			projectile.timeLeft = 300;
 			projectile.damage = 15;
 			projectile.friendly = false;
+			projectile.hostile = true;
 			projectile.penetrate = 1;
 			projectile.tileCollide = true;
 			projectile.ignoreWater = true;
@@ -37,8 +38,8 @@ namespace SuperMetroid.Projectiles.Boss
 		//	projectile.AI(true);
 		#region frames
 			if(ticks < 40) ticks++;
-			if(ticks%20 == 0) this.projectile.frame++ ;
-			if (this.projectile.frame >= 2) this.projectile.frame = 2;
+			if(ticks%20 == 0 && ticks < 40) this.projectile.frame++ ;
+			if (this.projectile.frame > 2) this.projectile.frame = 2;
 		#endregion
 			Lighting.AddLight((int)(((projectile.position.X + (float)(projectile.width*0.5))/16f)), ((int)(((projectile.position.Y + (float)projectile.height*0.5))/16f)), 0.5f, 0.4f, 0.0f);  
 		}
