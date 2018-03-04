@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using Terraria.GameInput;
+using SuperMetroid.Tiles.Breakables;
 
 namespace SuperMetroid.Projectiles
 {
@@ -148,12 +149,17 @@ namespace SuperMetroid.Projectiles
 					Main.player[projectile.owner].velocity.Y = -Xthreshold;
 				}
 			}
-		//	for(int i = (int)(projectile.position.X-BombRadius)/16; i < (int)(projectile.position.X+BombRadius)/16; i++){
-		//	for(int j = (int)(projectile.position.Y-BombRadius)/16; j < (int)(projectile.position.Y+BombRadius)/16; j++){
-		//		Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBBlock", i, j, null);
-		//		Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBlock", i, j, null);
-		//		}
-		//	}
+			
+			for(int i = (int)(projectile.position.X-BombRadius)/16; i < (int)(projectile.position.X+BombRadius)/16; i++) {
+				for(int j = (int)(projectile.position.Y-BombRadius)/16; j < (int)(projectile.position.Y+BombRadius)/16; j++) {
+					if(Main.tile[i, j].type == mod.TileType("CrackedBlock"))
+					{
+						CrackedBlock.KillBlock(i, j);
+					}
+				//	Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBBlock", i, j, null);
+				//	Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBlock", i, j, null);
+				}
+			}
 		}
 
 

@@ -28,7 +28,7 @@ namespace SuperMetroid.Items
 		{
 			ModRecipe recipe = new ModRecipe(mod);
 			recipe.AddIngredient(9);
-			recipe.SetResult(this, 5);
+			recipe.SetResult(this, 1);
 			recipe.AddRecipe();
 		}
 		private int switchTime = 0, size = 14, bomb = 0, powerbomb;
@@ -40,8 +40,8 @@ namespace SuperMetroid.Items
 			if(switchTime > 0) switchTime--;
 			if(switchTime <= 0 && Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.Z) < 0) 
 			{
-				morph = !morph;
 				switchTime = 60;
+				morph = !morph;
 			//!	Yoraiz0r's collision detection
 			#region
 				if(!this.trap)
@@ -126,13 +126,13 @@ namespace SuperMetroid.Items
 					this.bomb = 20;
 					int a = Projectile.NewProjectile(player.position.X+player.width/2,(player.position.Y+player.height/2)+16,0,0,mod.ProjectileType("MorphBomb"),10,0,player.whoAmI);
 					Main.projectile[a].aiStyle = 0;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Lay Bomb"), Main.projectile[a].position);
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/LayBomb"), Main.projectile[a].position);
 				}
 				if(this.powerbomb > 0) this.powerbomb--;
 				if(this.powerbomb <= 0 && Main.mouseMiddle && GlobalPlayer.numPBombs > 0)
 				{
 					GlobalPlayer.numPBombs -= 1;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Lay Bomb"), player.position);
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/LayBomb"), player.position);
 					this.powerbomb = 60;
 					int b = Projectile.NewProjectile(player.position.X+player.width/2,(player.position.Y+player.height/2)+16,0,0,mod.ProjectileType("PowerBomb"),0,0,player.whoAmI);
 					Main.projectile[b].aiStyle = 0;

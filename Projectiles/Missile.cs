@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using SuperMetroid;
 
 namespace SuperMetroid.Projectiles
 {
@@ -21,7 +22,7 @@ namespace SuperMetroid.Projectiles
 			projectile.timeLeft = 600;
 			projectile.friendly = true;
 			projectile.penetrate = 1;
-			projectile.tileCollide = true;
+			projectile.tileCollide = false;
 			projectile.ignoreWater = true;
 			projectile.scale = 1.5f;
 			projectile.ranged = true;
@@ -31,15 +32,34 @@ namespace SuperMetroid.Projectiles
 		bool soundInit = false;
 		public override void AI()
 		{
-			if(!soundInit) {
+			if(!soundInit) 
+			{
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Missile"), projectile.position);
 				soundInit = true;
 			}
-		//	projectile.AI(true);
+			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
+			int type = mod.TileType("CrackedBlock");
+			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
+			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
+			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			if(collision) 
+			{
+				PreKill(0);
+				Kill(0);
+				if(correctTile)
+				{
+					KillBlock((int)tilev.X, (int)tilev.Y);
+				}
+				projectile.active = false;
+			}
+				
+			// projectile.AI(true);
 			Color color = new Color();
 			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
 			Main.dust[dust].noGravity = true;
-			foreach(NPC N in Main.npc)
+			
+			
+		/*	foreach(NPC N in Main.npc)
 			{
 				if(!N.active) continue;
 				if(N.life <= 0) continue;
@@ -49,7 +69,7 @@ namespace SuperMetroid.Projectiles
 				Rectangle nrec = new Rectangle((int)N.position.X, (int)N.position.Y, (int)N.width,(int)N.height);
 				if (projrec.Intersects(nrec))
 				{
-					if(N.type == mod.NPCType("Gold Torizo"))
+					if(N.type == mod.NPCType("GoldTorizo"))
 					{
 						projectile.damage = 0;
 					}
@@ -79,8 +99,9 @@ namespace SuperMetroid.Projectiles
 				//	Config.OpenCustomDoor(projX-4, projY, 1, Config.tileDefs.doorToggle[type]);
 				//	ModPlayer.openDoor = 180;
 				}
-			}
+			}*/
 		}
+
 		public override bool PreKill(int timeleft)
 		{
 			Main.PlaySound(mod.GetSoundSlot(SoundType.Custom, "Sounds/Custom/MBurst"), projectile.position);
@@ -99,5 +120,14 @@ namespace SuperMetroid.Projectiles
 				Main.dust[num72].noGravity = true;
 			}
 		}
+
+		public void KillBlock(int x,int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			int type = mod.TileType("EmptyBlock");
+			Main.tile[x, y].type = (ushort)type;
+		//	Projectile.NewProjectile(x,y,0,0,"Crumble",0,0,Main.myPlayer);
+		}
+		
 	}
 }
