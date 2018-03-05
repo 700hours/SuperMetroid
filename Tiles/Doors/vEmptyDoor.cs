@@ -7,9 +7,9 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using SuperMetroid;
 
-namespace SuperMetroid.Tiles.Breakables
+namespace SuperMetroid.Tiles.Doors
 {
-	public class EmptyBlock : ModTile
+	public class vEmptyDoor : ModTile
 	{
 		public override void SetDefaults()
 		{
@@ -21,7 +21,7 @@ namespace SuperMetroid.Tiles.Breakables
 			Main.tileBlockLight[Type]		= false;
 			Main.tileNoSunLight[Type]		= true;
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Empty Block");
+			name.SetDefault("Empty Door");
 			AddMapEntry(new Color(200, 150, 100), name);
 			disableSmartCursor = true;
 		}
@@ -29,15 +29,11 @@ namespace SuperMetroid.Tiles.Breakables
 		int init = 1;
 		public override void PostDraw(int i, int j, SpriteBatch SB)
 		{
-			if(GlobalPlayer.tileTime == 20)
-			{
-				int a = Projectile.NewProjectile(i*16+8, j*16+8,0,0,mod.ProjectileType("CrumbleRevert"),0,0,Main.player[Main.myPlayer].whoAmI);
-				Main.projectile[a].aiStyle = 0;
-			}
 			if(GlobalPlayer.tileTime <= 0)
 			{
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorClosing"), new Vector2(i*16, j*16));
 				WorldGen.KillTile(i, j,	false, false, true);
-				WorldGen.PlaceTile(i, j, mod.TileType("CrackedBlock"));
+				WorldGen.PlaceTile(i, j, mod.TileType("vBlueDoor"));
 			}
 		}
 	}

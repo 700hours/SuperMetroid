@@ -11,11 +11,11 @@ using Terraria.GameInput;
 
 namespace SuperMetroid.Projectiles.Mechanics
 {
-	public class Crumble : ModProjectile
+	public class CrumbleRevert : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Crumble");
+			DisplayName.SetDefault("Crumble Revert");
 			Main.projFrames[projectile.type] = 6;
 		}
 		public override void SetDefaults()

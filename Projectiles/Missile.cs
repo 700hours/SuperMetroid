@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using SuperMetroid;
+using SuperMetroid.Tiles.Shutters;
 
 namespace SuperMetroid.Projectiles
 {
@@ -37,11 +38,17 @@ namespace SuperMetroid.Projectiles
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Missile"), projectile.position);
 				soundInit = true;
 			}
+			
+		#region tile functions
 			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
 			int type = mod.TileType("CrackedBlock");
+			int type2 = mod.TileType("BlueSwitchleft");
+			int type3 = mod.TileType("vBlueDoor");
 			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
 			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
 			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueDoor = (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			if(collision) 
 			{
 				PreKill(0);
@@ -50,10 +57,18 @@ namespace SuperMetroid.Projectiles
 				{
 					KillBlock((int)tilev.X, (int)tilev.Y);
 				}
+				if(blueSwitch)
+				{
+					ShutterSwitch((int)tilev.X, (int)tilev.Y);
+				}
+				if(blueDoor)
+				{
+					DoorToggle((int)tilev.X, (int)tilev.Y);
+				}
 				projectile.active = false;
 			}
-				
-			// projectile.AI(true);
+		#endregion
+		
 			Color color = new Color();
 			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
 			Main.dust[dust].noGravity = true;
@@ -126,8 +141,24 @@ namespace SuperMetroid.Projectiles
 			GlobalPlayer.tileTime = 300;
 			int type = mod.TileType("EmptyBlock");
 			Main.tile[x, y].type = (ushort)type;
-		//	Projectile.NewProjectile(x,y,0,0,"Crumble",0,0,Main.myPlayer);
+			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
 		}
-		
+		public void ShutterSwitch(int x,int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ShutterDoor"), projectile.position);
+			int type = mod.TileType("EmptyShutter");
+			if(Main.tile[x, y].type == mod.TileType("BlueSwitchleft"))
+			{
+				for(int i = 0; i < 4; i++) Main.tile[x+1, (y+1)+i].type = (ushort)type;
+			}
+		}
+		public void DoorToggle(int x, int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorOpening"), projectile.position);
+			int type = mod.TileType("vEmptyDoor");
+			Main.tile[x, y].type = (ushort)type;
+		}
 	}
 }
