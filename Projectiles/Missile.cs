@@ -119,7 +119,7 @@ namespace SuperMetroid.Projectiles
 
 		public override bool PreKill(int timeleft)
 		{
-			Main.PlaySound(mod.GetSoundSlot(SoundType.Custom, "Sounds/Custom/MBurst"), projectile.position);
+			Main.PlaySound(mod.GetSoundSlot(SoundType.Item, "Sounds/Item/MBurst"), projectile.position);
 			return true;
 		}
 		float Radius = 12f;
