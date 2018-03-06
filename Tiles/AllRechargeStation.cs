@@ -49,7 +49,12 @@ namespace SuperMetroid.Tiles
 		int sm2 = 0;
 		int sm3 = 0;
 		int RefillSound = 0;
-
+		public override void MouseOver(int i, int j)
+		{
+			Player player = Main.LocalPlayer;
+			Tile tile = Main.tile[i, j];
+			player.showItemIconText = "Right click to use";
+		}
 		public override void RightClick(int i, int j)
 		{
 			Player player = Main.player[Main.myPlayer];

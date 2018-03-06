@@ -38,6 +38,12 @@ namespace SuperMetroid.Tiles
 			AddMapEntry(new Color(200, 200, 200), name);
 			disableSmartCursor = true;
 		}
+		public override void MouseOver(int i, int j)
+		{
+			Player player = Main.LocalPlayer;
+			Tile tile = Main.tile[i, j];
+			player.showItemIconText = "Right click to use";
+		}
 		int RefillSound = 0;
 		public override void RightClick(int i, int j)
 		{
@@ -46,7 +52,7 @@ namespace SuperMetroid.Tiles
 			if(Main.tile[(int)player.position.X/16, (int)player.position.Y/16+1].type == (ushort)type)
 			{
 				RefillSound++;
-				for(i = 0; i < player.statLifeMax; i++) player.statLife++;
+				for(i = 0; i < player.statLifeMax - player.statLife; i++) player.statLife++;
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/FullRefill"), new Vector2(i*16, j*16));
 			}
 		}

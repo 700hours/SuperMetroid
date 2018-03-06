@@ -55,35 +55,5 @@ namespace SuperMetroid.Tiles.Extensions
 				}
 			}
 		}
-		
-	/*	public void UpgradeHit(int x,int y)
-		{
-			ModPlayer.cbUpg = 1;
-			Item.NewItem((int)Main.player[Main.myPlayer].position.X,(int)Main.player[Main.myPlayer].position.Y,32,32,(int)Config.itemDefs.byName["Charge Beam"].type,1,false);
-			ModPlayer.upgradePercent++;
-			WorldGen.KillTile(x, y, false, false, true, null);
-			if(ModPlayer.ffTimer <= 0)
-			{
-				ModPlayer.ffTimer = 3600; //1 minute
-				Main.PlaySound(2,-1,-1,SoundHandler.soundID["Item Fanfare"]);
-			}
-		}	*/
-	/*	int frame = 0;
-		public void Update()
-		{
-			frame++;
-			if(frame == 4)
-			{
-				Main.tileTexture[Config.tileDefs.ID["ChargeBeam"]] = Main.goreTexture[Config.goreID["Charge Beam 1"]];
-			}
-			if(frame == 8)
-			{
-				Main.tileTexture[Config.tileDefs.ID["ChargeBeam"]] = Main.goreTexture[Config.goreID["Charge Beam 2"]];
-			}
-			if(frame > 8)
-			{
-				frame = 0;
-			}
-		}	*/
 	}
 }
