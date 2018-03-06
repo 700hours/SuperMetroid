@@ -44,11 +44,13 @@ namespace SuperMetroid.Projectiles
 			int type = mod.TileType("CrackedBlock");
 			int type2 = mod.TileType("BlueSwitchleft");
 			int type3 = mod.TileType("vBlueDoor");
+			int type4 = mod.TileType("ChozoDoor");
 			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
 			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
 			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool blueSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
-			bool blueDoor = (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool vblueDoor = (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			if(collision) 
 			{
 				PreKill(0);
@@ -61,7 +63,7 @@ namespace SuperMetroid.Projectiles
 				{
 					ShutterSwitch((int)tilev.X, (int)tilev.Y);
 				}
-				if(blueDoor)
+				if(vblueDoor || blueDoor)
 				{
 					DoorToggle((int)tilev.X, (int)tilev.Y);
 				}
@@ -73,7 +75,7 @@ namespace SuperMetroid.Projectiles
 			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
 			Main.dust[dust].noGravity = true;
 			
-			
+
 		/*	foreach(NPC N in Main.npc)
 			{
 				if(!N.active) continue;
@@ -156,9 +158,13 @@ namespace SuperMetroid.Projectiles
 		public void DoorToggle(int x, int y)
 		{
 			GlobalPlayer.tileTime = 300;
+			int type = mod.TileType("vBlueDoor");
+			int type2 = mod.TileType("ChozoDoor");
+			int transform = mod.TileType("vEmptyDoor");
+			int transform2 = mod.TileType("ChozoDoorOpening");
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorOpening"), projectile.position);
-			int type = mod.TileType("vEmptyDoor");
-			Main.tile[x, y].type = (ushort)type;
+			if(Main.tile[x, y].type == (ushort)type) Main.tile[x, y].type = (ushort)transform;
+			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform2;
 		}
 	}
 }
