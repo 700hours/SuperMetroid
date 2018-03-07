@@ -19,33 +19,38 @@ namespace SuperMetroid
 	public class GlobalPlayer : ModPlayer
 	{
 		public static bool
-			enabledSuit = false, Respawn, Switched = false, 
+			enabledSuit = false, Respawn, Switched = false,  morph, crit,
 		//	(deprecated) to-be modified
-			ballstate = false, somersault = false;
-		
+			ballstate = false, somersault = false, xrayOn = false, 
+			BootsOn = false, PowerArmor = false, VariaSuit = false, GravitySuit = false,
+			PowerSuit = true, correctTile;
 		public static int
-			globalTime = 0, switchTime = 0,
+			globalTime = 0, switchTime = 0, tileTime = 0,
 			TileSize = 16, RespawnT, immuneT,
 		//	(deprecated) to-be modified
-			springBall = 0, numPBombs = 10, shineDirection = 0, missileUpg, smissileUpg, reserveTank, MBbombs, pbombUpg = 2;
-		
+			springBall = 0, numPBombs = 10, shineDirection = 0, missileUpg = 10, smissileUpg = 10, reserveTank, MBbombs, pbombUpg = 2,
+			variaUpg = 1, gravityUpg = 1, upgradePercent, ffTimer = 0, cbUpg;
 		public static double 
 			Time;
 		public static float 
 			ballrot = 0f, rotateCount = 0.075f, rotation = 0.0f, playervX = 0;
-		
+	
 		public override void PreUpdate()
 		{
+			player.width = 14;
+		
+		//	timers for queuing things
 			if(globalTime >= 0) globalTime++;
 			if(globalTime >= 1800) globalTime = 0;
 			if(switchTime > 0) switchTime--;
-		// 	player width
-			if(!ballstate) player.width = 14;
+		//	reference tileTime in region tile interactions
+		//	deprecated	
+			if(ffTimer > 0) ffTimer--; 
+		
 		// 	player run boost
-			if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.LeftShift) < 0 
-				&& player.velocity.X != 0) player.moveSpeed += 0.3f;
-		//!	TEMP morphball
-		//	if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.Z) < 0 && switchTime <= 0) ballstate = !ballstate;
+			bool runBoost	= Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.LeftShift) < 0 && player.velocity.X != 0; 
+			if(runBoost)	player.maxRunSpeed += 1.3f;
+			
 		#region wall-jump
 			float PCentreY	= player.position.Y + player.height * 0.5f;
 			float PRight 	= player.position.X + player.width;
@@ -68,6 +73,13 @@ namespace SuperMetroid
 				player.jump		 	= Player.jumpHeight;
 			}
 		#endregion
+		
+		#region morphball
+		//	need to make check for morphball upgrade
+		//	Main.NewText("Player Height " + player.height, 200,150,100);			
+		#endregion
+			
+		//	kill check
 			if(player.statLife <= 0)
 			{
 				PlayerDeathReason PDR = new PlayerDeathReason();
@@ -78,6 +90,68 @@ namespace SuperMetroid
 				immuneT = 200;
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Dying"), player.position);
 			}
+		#region tile states
+			Vector2 tilev = new Vector2(player.position.X/16, player.position.Y/16-1);
+			int check = mod.TileType("CeresEmptyDoor");
+			int check2 = mod.TileType("EmptyShutter");
+			bool collision = (check == Main.tile[(int)tilev.X, (int)tilev.Y+1].type) || (check2 == Main.tile[(int)tilev.X, (int)tilev.Y+1].type);
+			if(!collision && tileTime > 0) tileTime--;
+		
+		//	ceres station door
+			int type = mod.TileType("CeresDoor");
+		//	open from right
+			for(int i = 0; i < 16; i++)
+			{
+				Tile T = Main.tile[(int)tilev.X-i, (int)tilev.Y+i];
+				correctTile = (type == Main.tile[(int)tilev.X-i, (int)tilev.Y+i].type);
+				if(correctTile)
+				{
+					DoorToggle((int)Math.Round(tilev.X-i), (int)Math.Round(tilev.Y+i));
+				}
+			}
+		//	open from left
+			for(int i = 0; i < 16; i++)
+			{
+				Tile T = Main.tile[(int)tilev.X+i, (int)tilev.Y+i];
+				correctTile = (type == Main.tile[(int)tilev.X+i, (int)tilev.Y+i].type);
+				if(correctTile)
+				{
+					DoorToggle((int)Math.Round(tilev.X+i), (int)Math.Round(tilev.Y+i));
+				}
+			}
+			
+		//	extension collision detection
+			int type2 = mod.TileType("ChargeBeam");
+			correctTile = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y+3].type);
+			if(correctTile)
+			{
+				cbUpg = 1;
+				Item.NewItem((int)player.position.X,(int)player.position.Y,32,32,mod.ItemType("ChargeBeam"),1,false);
+				upgradePercent++;
+				WorldGen.KillTile((int)tilev.X, (int)tilev.Y+3, false, false, true);
+				if(ffTimer <= 0)
+				{
+					ffTimer = 3600; //1 minute
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ItemFanfare"), player.position);
+				}
+			}
+		//	spikes detection		
+			int spikes = mod.TileType("Spikes");
+			bool Top = (spikes == Main.tile[(int)tilev.X, (int)tilev.Y+1].type);
+			bool Middle = (spikes == Main.tile[(int)tilev.X, (int)tilev.Y+2].type);
+			bool Bottom = (spikes == Main.tile[(int)tilev.X, (int)tilev.Y+3].type);
+			if(Top || Middle || Bottom)
+			{
+				PlayerDeathReason PDR = new PlayerDeathReason();
+				PDR = PlayerDeathReason.ByCustomReason(" was impaled upon spikes");
+				int damage = 12;
+				int hitDirection = 0;
+				if(Main.rand.Next(-1, 2) == 0) crit = true;
+				else crit = false;
+				player.Hurt(PDR, damage, hitDirection, false, false, crit, 1);
+			}
+			
+		#endregion
 		#region missile launcher
 			Item item = player.inventory[player.selectedItem];
 			if(item.type == mod.ItemType("MissileLauncher"))
@@ -213,107 +287,86 @@ namespace SuperMetroid
 				}
 			}
 		#endregion */
-	/*	#region armor
-			if(item.name == "Power Armor" || item.name == "Varia Armor" || item.name == "Gravity Armor")
+		#region armor
+			if(item.type == mod.ItemType("PowerArmor") || item.type == mod.ItemType("VariaArmor") || item.type == mod.ItemType("GravityArmor"))
 			{
 				PowerSuit = true;
 				BootsOn = true;
 			}
-			if(item.name == "Power Armor" && variaUpg == 1)
+			if(item.type == mod.ItemType("PowerArmor") && variaUpg == 1)
 			{
-				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && !Switched)
+				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
 				{
 					VariaSuit = true;
 					GravitySuit = false;
 					
-					Main.PlaySound(2,-1,-1,SoundHandler.soundID["Click"]);
-					Main.itemTexture[item.type] = Main.goreTexture[Config.goreID["Varia Suit"]];
-					Switched = true;
-					item.name = "Varia Armor";
-					P.armor[0].SetDefaults("Varia Suit Helmet", false);
-					P.armor[1].SetDefaults("Varia Suit Breastplate", false);
-					P.armor[2].SetDefaults("Varia Suit Greaves", false);
-					item.toolTip = "Immune to heat damage";
-					item.toolTip2 = "Press R to switch armor";
+					switchTime = 45;
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					item.type = mod.ItemType("VariaArmor");
+					player.armor[0].SetDefaults(mod.ItemType("Varia Suit Helmet"), false);
+					player.armor[1].SetDefaults(mod.ItemType("Varia Suit Breastplate"), false);
+					player.armor[2].SetDefaults(mod.ItemType("Varia Suit Greaves"), false);
 				}
 			}
-			if(item.name == "Power Armor" && variaUpg != 1 && gravityUpg == 1)
+			if(item.type == mod.ItemType("PowerArmor") && variaUpg != 1 && gravityUpg == 1)
 			{
-				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && !Switched)
+				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
 				{
 					VariaSuit = false;
 					GravitySuit = true;
 					
-					Main.PlaySound(2,-1,-1,SoundHandler.soundID["Click"]);
-					Main.itemTexture[item.type] = Main.goreTexture[Config.goreID["Gravity Suit"]];
-					Switched = true;
-					item.name = "Gravity Armor";
-					P.armor[0].SetDefaults("Gravity Suit Helmet", false);
-					P.armor[1].SetDefaults("Gravity Suit Breastplate", false);
-					P.armor[2].SetDefaults("Gravity Suit Greaves", false);
-					item.toolTip = "Immune to heat damage & to effects of lava, free movement in liquid";
-					item.toolTip2 = "Press R to switch armor";
+					switchTime = 45;
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					item.type = mod.ItemType("GravityArmor");
+					player.armor[0].SetDefaults(mod.ItemType("Gravity Suit Helmet"), false);
+					player.armor[1].SetDefaults(mod.ItemType("Gravity Suit Breastplate"), false);
+					player.armor[2].SetDefaults(mod.ItemType("Gravity Suit Greaves"), false);
 				}
 			}
-			if(item.name == "Power Armor" && variaUpg != 1 && gravityUpg != 1)
+			if(item.type == mod.ItemType("PowerArmor") && variaUpg != 1 && gravityUpg != 1)
 			{
-				P.armor[0].SetDefaults("Power Suit Helmet", false);
-				P.armor[1].SetDefaults("Power Suit Breastplate", false);
-				P.armor[2].SetDefaults("Power Suit Greaves", false);
-				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && !Switched)
+				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
 				{
-					Switched = true;
-		//			Main.PlaySound(2,-1,-1,SoundHandler.soundID["Denied"]);
+					switchTime = 45;
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					player.armor[0].SetDefaults(mod.ItemType("Power Suit Helmet"), false);
+					player.armor[1].SetDefaults(mod.ItemType("Power Suit Breastplate"), false);
+					player.armor[2].SetDefaults(mod.ItemType("Power Suit Greaves"), false);				
 				}
 			}
-			if(item.name == "Varia Armor" && gravityUpg == 1)
+			if(item.type == mod.ItemType("VariaArmor") && gravityUpg == 1)
 			{
-				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && !Switched)
+				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
 				{
 					VariaSuit = true;
 					GravitySuit = true;
 					
-					Main.PlaySound(2,-1,-1,SoundHandler.soundID["Click"]);
-					Main.itemTexture[item.type] = Main.goreTexture[Config.goreID["Gravity Suit"]];
-					Switched = true;
-					item.name = "Gravity Armor";
-					P.armor[0].SetDefaults("Gravity Suit Helmet", false);
-					P.armor[1].SetDefaults("Gravity Suit Breastplate", false);
-					P.armor[2].SetDefaults("Gravity Suit Greaves", false);
-					item.toolTip = "Immune to heat damage & to effects of lava, free movement in liquid";
-					item.toolTip2 = "Press R to switch armor";
+					switchTime = 45;
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					item.type = mod.ItemType("GravityArmor");
+					player.armor[0].SetDefaults(mod.ItemType("Gravity Suit Helmet"), false);
+					player.armor[1].SetDefaults(mod.ItemType("Gravity Suit Breastplate"), false);
+					player.armor[2].SetDefaults(mod.ItemType("Gravity Suit Greaves"), false);
 				}
 			}
-			if(item.name == "Gravity Armor" || item.name == "Varia Armor" && gravityUpg != 1)
+			if(item.type == mod.ItemType("GravityArmor") || item.type == mod.ItemType("VariaArmor") && gravityUpg != 1)
 			{
-				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && !Switched)
+				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
 				{
 					VariaSuit = false;
 					GravitySuit = false;
 					
-					Main.PlaySound(2,-1,-1,SoundHandler.soundID["Click"]);
-					Main.itemTexture[item.type] = Main.goreTexture[Config.goreID["Power Suit"]];
-					Switched = true;
-					item.name = "Power Armor";
-					P.armor[0].SetDefaults("Power Suit Helmet", false);
-					P.armor[1].SetDefaults("Power Suit Breastplate", false);
-					P.armor[2].SetDefaults("Power Suit Greaves", false);
-					item.toolTip = "Standard armor";
-					item.toolTip2 = "Press R to switch armor";
+					switchTime = 45;
+					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					item.type = mod.ItemType("PowerArmor");
+					player.armor[0].SetDefaults(mod.ItemType("Power Suit Helmet"), false);
+					player.armor[1].SetDefaults(mod.ItemType("Power Suit Breastplate"), false);
+					player.armor[2].SetDefaults(mod.ItemType("Power Suit Greaves"), false);
 				}
-			}
-			if(Switched)
-			{
-				Switch++;
-			}
-			if(Switch >= 30)
-			{
-				Switch = 0;
-				Switched = false;
 			}
 		#endregion
 		#region reserve tank
-			if(regenTimer > 0)
+		/*	if(regenTimer > 0)
 			{
 				regenTimer--;
 			}
@@ -399,28 +452,77 @@ namespace SuperMetroid
 				}
 			}
 		#endregion */
-	//	deprecated
-/*		public static bool TileCollision(int x,int y,int Radius,int Type)
+		#endregion
+		
+		//	door transition
+			for(int i = (int)(player.position.X)/16; i < (int)(player.position.X+player.width)/16; i++)
+			{
+				for(int j = (int)(player.position.Y)/16; j < (int)(player.position.Y+player.height)/16; j++)
+				{
+					if(Main.tile[i, j].type == mod.TileType("DoorCorridor") && player.velocity.X > 0)
+					{
+						player.position.X += 16;
+					}
+					if(Main.tile[i, j].type == mod.TileType("DoorCorridor") && player.velocity.X < 0)
+					{
+						player.position.X -= 16;
+					}
+				}
+			}
+		}
+		
+		public void DoorToggle(int i, int j)
+		{
+			tileTime = 300;
+			int type = mod.TileType("CeresDoor"); 
+			int type2 = mod.TileType("CeresEmptyDoor");
+			if(Main.tile[i, j].type == (ushort)type) Main.tile[i, j].type = (ushort)type2;
+		}
+		
+		public static bool TileCollision(int x,int y,int Radius,int Type)
 		{
 			for(int i = x - Radius; i < x + Radius; i++){
 			for(int j = y - Radius; j < y + Radius; j++){
 			Vector2 Position = new Vector2(i, j);
 			
-			if(Main.tile[(int)Position.X/16, (int)Position.Y/16].active() && Type == Main.tile[(int)Position.X/16, (int)Position.Y/16].type) return true;
+			if(Main.tile[(int)Position.X, (int)Position.Y].active() && Main.tile[(int)Position.X/16, (int)Position.Y/16].type == (ushort)Type) return true;
 					else return false;
 				}
 			}
 			return false;
-		}	*/
 		}
+		
 		public override void DrawEffects(PlayerDrawInfo drawinfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
 		{
-			Texture2D mytex = mod.GetTexture("Gore/Morphball");
-			Texture2D mytex2 = mod.GetTexture("Gore/MorphballLight");
-					
+			//!	armor draw code
+			#region
+	/*	//	drawinfo	
+			PlayerHeadDrawInfo drawInfo = new PlayerHeadDrawInfo();
+			drawInfo.spriteBatch = Main.spriteBatch;
+			drawInfo.drawPlayer = player;
+		//	draw variables
+			SpriteEffects effects = SpriteEffects.None;
+			Vector2 origin = new Vector2((float)player.legFrame.Width * 0.5f, (float)player.legFrame.Height * 0.5f);
+			Color color = player.GetImmuneAlpha(Lighting.GetColor((int)((double)player.position.X + (double)player.width * 0.5) / 16, (int)(((double)player.position.Y + (double)player.height * 0.25) / 16.0), Color.White), 0f);
+			//	legs
+				Vector2 legsv = new Vector2((float)((int)(player.position.X - Main.screenPosition.X - (float)(player.bodyFrame.Width / 2) + (float)(player.width / 2))), (float)((int)(player.position.Y - Main.screenPosition.Y + (float)player.height - (float)player.bodyFrame.Height + 4f)));
+		//	textures
+			Texture2D powerArmor = mod.GetTexture("Gores/Armor/PowerSuitBody");
+			Texture2D powerLegs = mod.GetTexture("Gores/Armor/PowerSuitLegs");
+		//	draw
+			if(PowerSuit)
+			{
+				Main.spriteBatch.Draw(powerArmor, new Vector2((float)((int)(player.position.X - Main.screenPosition.X - (float)(player.bodyFrame.Width / 2) + (float)(player.width / 2))), (float)((int)(player.position.Y - Main.screenPosition.Y + (float)player.height - (float)player.bodyFrame.Height + 4f))) + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), new Rectangle?(player.bodyFrame), default(Color), rotation, origin, 1f, effects, 0f);
+				Main.spriteBatch.Draw(powerLegs, legsv + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2)), new Rectangle?(player.legFrame), default(Color), 0f, origin, 1f, effects, 0f);
+			}	*/
+			#endregion
 			//!	Yoraiz0r's morphball draw code
 			//	Using it as a reference
-			#region
+			#region 
+			/*
+				Texture2D mytex = mod.GetTexture("Gores/Morphball");
+				Texture2D mytex2 = mod.GetTexture("Gores/MorphballLight");
+
 				if(player.active) 
 	{	
 				PlayerHeadDrawInfo drawInfo = new PlayerHeadDrawInfo();
@@ -494,7 +596,7 @@ namespace SuperMetroid
 							}
 						}
 					}
-				}	
+				} */
 		#endregion
 			//! ScooterBoot's somersault draw code
 			//	Using it as a reference
@@ -556,7 +658,7 @@ namespace SuperMetroid
 						player.bodyPosition.Y = 6f;
 					}
 				}
-				//wings
+			//	wings
 				if (player.wings > 0)
 				{
 					Main.spriteBatch.Draw(Main.wingsTexture[player.wings], new Vector2((float)((int)(player.position.X - Main.screenPosition.X + (float)(player.width / 2) - (float)(9 * player.direction))), (float)((int)(player.position.Y - Main.screenPosition.Y + (float)(player.height / 2) + 2f * player.gravDir))), new Rectangle?(new Rectangle(0, Main.wingsTexture[player.wings].Height / 4 * player.wingFrame, Main.wingsTexture[player.wings].Width, Main.wingsTexture[player.wings].Height / 4)), color11, rotation, new Vector2((float)(Main.wingsTexture[player.wings].Width / 2), (float)(Main.wingsTexture[player.wings].Height / 8)), 1f, effects, 0f);
