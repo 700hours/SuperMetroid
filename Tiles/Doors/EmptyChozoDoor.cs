@@ -100,6 +100,5 @@ namespace SuperMetroid.Tiles.Doors
 			Main.tile[x, y].frameX = (short)(frame*18);
 		//	Main.tile[x, y].frameY = (short)(j*18);
 		}
-		
 	}
 }

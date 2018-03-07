@@ -40,5 +40,12 @@ namespace SuperMetroid.Tiles.Doors
 			if(player.Hitbox.Intersects(TB)) isLighted = true;
 			else isLighted = false;
 		}
+		
+		int type = 0;
+		public override void HitWire(int i, int j)
+		{
+			type = mod.TileType("vEmptyDoor");
+			Main.tile[i, j].type = (ushort)type;
+		}
 	}
 }

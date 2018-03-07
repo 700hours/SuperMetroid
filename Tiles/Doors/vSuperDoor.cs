@@ -1,8 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using Terraria.DataStructures;
-using Terraria.Enums;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -11,7 +9,7 @@ using SuperMetroid;
 
 namespace SuperMetroid.Tiles.Doors
 {
-	public class ChozoDoor : ModTile
+	public class vSuperDoor : ModTile
 	{
 		public override void SetDefaults()
 		{
@@ -23,8 +21,8 @@ namespace SuperMetroid.Tiles.Doors
 			Main.tileBlockLight[Type]		= true;
 			Main.tileNoSunLight[Type]		= false;
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Chozo Door");
-			AddMapEntry(new Color(200, 150, 100), name);
+			name.SetDefault("Vertical Super Missile Door");
+			AddMapEntry(new Color(25, 125, 0), name);
 			disableSmartCursor = true;
 		}
 		public static bool isLighted = false;
@@ -32,9 +30,9 @@ namespace SuperMetroid.Tiles.Doors
 		{
 			if(isLighted)
 			{
-				r = 0.164f;
-				g = 0.258f;
-				b = 0.478f;
+				r = 0.149f;
+				g = 0.537f;
+				b = 0.0f;
 			}
 			Player player = Main.player[Main.myPlayer];
 			Rectangle PB = new Rectangle((int)player.position.X - 32, (int)player.position.Y - 32, player.width + 32, player.height + 32);
@@ -46,7 +44,7 @@ namespace SuperMetroid.Tiles.Doors
 		int type = 0;
 		public override void HitWire(int i, int j)
 		{
-			type = mod.TileType("ChozoDoorOpening");
+			type = mod.TileType("vEmptyDoor");
 			Main.tile[i, j].type = (ushort)type;
 		}
 	}

@@ -15,7 +15,7 @@ namespace SuperMetroid.Tiles.Doors
 		{
 			Main.tileFrameImportant[Type]	= true;
 			Main.tileLavaDeath[Type]		= false;
-			Main.tileSolid[Type] 			= false;
+			Main.tileSolid[Type] 			= true;
 			Main.tileMergeDirt[Type]		= false;
 			Main.tileLighted[Type] 			= false;
 			Main.tileBlockLight[Type]		= true;
@@ -51,7 +51,7 @@ namespace SuperMetroid.Tiles.Doors
 				k += 3;
 			}
 			k = k % 4; 
-
+			
 			Texture2D texture = mod.GetTexture("Tiles/Doors/ChozoDoorOpening");
 			if (Main.canDrawColorTile(i, j))
 			{
@@ -67,28 +67,30 @@ namespace SuperMetroid.Tiles.Doors
 				zero = Vector2.Zero;
 			}
 			int animate = k * animationFrameWidth;
-
+			
 			Main.spriteBatch.Draw(
 				texture,
 				new Vector2(i * 16 - (int)Main.screenPosition.X, j * 16 - (int)Main.screenPosition.Y) + zero,
 				new Rectangle(T.frameX + animate, T.frameY, 16, 16),
 				Lighting.GetColor(i, j), 0f, default(Vector2), 1f, effects, 0f);
 
-			return false; // return false to stop vanilla draw.
+			return false;
 		}
-		
+
+		int type = 0; 
 		public override void AnimateTile(ref int frame, ref int frameCounter)
 		{
+			type = mod.TileType("EmptyChozoDoor");
 			frameCounter++;
-			if (frameCounter > 5)
+			if(frameCounter > 5)
 			{
 				frameCounter = 0;
 				frame++;
-				if (frame > 4)
+				if(frame > 4)
 				{
-					frame = 6;
+					Main.tile[x, y].type = (ushort)type;
 				}
 			}
-		}		
+		}
 	}
 }

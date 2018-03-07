@@ -29,7 +29,7 @@ namespace SuperMetroid.Tiles.Doors
 		int init = 1;
 		public override void PostDraw(int i, int j, SpriteBatch SB)
 		{
-			if(GlobalPlayer.tileTime <= 0)
+			if(MetroidPlayer.tileTime <= 0)
 			{
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorClosing"), new Vector2(i*16, j*16));
 				WorldGen.KillTile(i, j,	false, false, true);
