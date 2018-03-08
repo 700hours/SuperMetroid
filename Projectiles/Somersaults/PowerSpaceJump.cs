@@ -12,11 +12,11 @@ using Terraria.GameInput;
 
 namespace SuperMetroid.Projectiles.Somersaults
 {
-	public class VariaSpaceJump : ModProjectile
+	public class PowerSpaceJump : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Varia Spacejump");
+			DisplayName.SetDefault("Power Space Jump");
 			Main.projFrames[projectile.type] = 4;
 		}
 		public override void SetDefaults()

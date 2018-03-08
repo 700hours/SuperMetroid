@@ -7,13 +7,12 @@ using Terraria.ModLoader;
 namespace SuperMetroid.Items.Armors
 {
 	[AutoloadEquip(EquipType.Body)]
-	public class VariaSuitBreastplate : ModItem
+	public class PowerSuitBreastplate : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
 			base.SetStaticDefaults();
-			DisplayName.SetDefault("Varia Suit Breastplate");
-			Tooltip.SetDefault("Immunity to heat & lava.");
+			DisplayName.SetDefault("Power Suit Breastplate");
 		}
 		public override void SetDefaults()
 		{
@@ -33,7 +32,7 @@ namespace SuperMetroid.Items.Armors
 		}
 		public override bool IsArmorSet(Item head, Item body, Item legs)
 		{
-			return head.type == mod.ItemType("VariaSuitHelmet") && legs.type == mod.ItemType("VariaSuitGreaves");
+			return head.type == mod.ItemType("PowerSuitHelmet") && legs.type == mod.ItemType("PowerSuitGreaves");
 		}
 		
 		bool Attacking;
@@ -49,7 +48,7 @@ namespace SuperMetroid.Items.Armors
 				}
 				foreach(Projectile P in Main.projectile)
 				{
-					if(P.active && P.owner==player.whoAmI && P.type == mod.ProjectileType("VariaSpaceJump"))
+					if(P.active && P.owner==player.whoAmI && P.type == mod.ProjectileType("PowerSpaceJump"))
 					{
 						Attacking = true;
 						player.invis = true;
@@ -59,7 +58,7 @@ namespace SuperMetroid.Items.Armors
 				if(!Attacking)
 				{
 					int damage = 0;
-					Projectile.NewProjectile(player.position.X+player.width/2,player.position.Y+player.height/2,0,0,mod.ProjectileType("VariaSpaceJump"),damage,0,player.whoAmI);
+					Projectile.NewProjectile(player.position.X+player.width/2,player.position.Y+player.height/2,0,0,mod.ProjectileType("PowerSpaceJump"),damage,0,player.whoAmI);
 				}	
 			}
 
@@ -71,7 +70,7 @@ namespace SuperMetroid.Items.Armors
 				}
 				foreach(Projectile P in Main.projectile)
 				{
-					if(P.active && P.owner==player.whoAmI && P.type == mod.ProjectileType("VariaSpaceJump"))
+					if(P.active && P.owner==player.whoAmI && P.type == mod.ProjectileType("PowerSpaceJump"))
 					{
 						Attacking = true;
 						player.invis = true;
@@ -81,7 +80,7 @@ namespace SuperMetroid.Items.Armors
 				if(!Attacking)
 				{
 					int damage = 0;
-					Projectile.NewProjectile(player.position.X+player.width/2,player.position.Y+player.height/2,0,0,mod.ProjectileType("VariaSpaceJump"),damage,0,player.whoAmI);
+					Projectile.NewProjectile(player.position.X+player.width/2,player.position.Y+player.height/2,0,0,mod.ProjectileType("PowerSpaceJump"),damage,0,player.whoAmI);
 				}	
 			}
 		#endregion

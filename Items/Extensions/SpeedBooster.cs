@@ -46,8 +46,9 @@ namespace SuperMetroid.Items.Extensions
 		static int proj = -1;
 		
 		Vector2 tilev;
-		int TileX, TileY;
-
+		int TileX, TileY, Counter = 1;
+		bool trap = false, countDown = false;
+		
 		public override void UpdateAccessory(Player player, bool hideVisual)
 		{
 		//	ModPlayer.shineDirection = shineDir;
@@ -290,23 +291,61 @@ namespace SuperMetroid.Items.Extensions
 					}
 				}
 			}
-
-		//cancel shine-spark
-			//stop movement
-			int noMap = Lighting.offScreenTiles * 16 + 16;
+			
+		#region tile functions
+		//check for collision and destructed tiles
 			tilev = new Vector2(player.position.X/16, player.position.Y/16);
 			TileX = (int)tilev.X;
 			TileY = (int)tilev.Y;
 			bool collisionTop = (Main.tileSolid[Main.tile[TileX-1,TileY].type] && Main.tile[TileX-1, TileY].active() || Main.tileSolid[Main.tile[TileX+1, TileY].type] && Main.tile[TileX+1, TileY].active());
 			bool collisionMiddle = (Main.tileSolid[Main.tile[TileX-1,TileY+1].type] && Main.tile[TileX-1, TileY+1].active() || Main.tileSolid[Main.tile[TileX+1, TileY+1].type] && Main.tile[TileX+1, TileY+1].active());
 			bool collisionBottom = (Main.tileSolid[Main.tile[TileX-1,TileY+2].type] && Main.tile[TileX-1, TileY+2].active() || Main.tileSolid[Main.tile[TileX+1, TileY+2].type] && Main.tile[TileX+1, TileY+2].active());
-			if(shineDir != 0 && (collisionTop || collisionMiddle || collisionBottom)|| player.statMana <= 0 || 
-			(player.position.X + player.width) >= (Main.rightWorld - noMap - 16))
+			if(shineDir != 0 && (collisionTop || collisionMiddle || collisionBottom))
 			{
-				shineDir = 0;
-				shineDeActive = 0;
-				shineActive = false;
-			//	Main.projectile[proj].Kill();
+				KillBlock((int)TileX-1, (int)TileY);
+				KillBlock((int)TileX-1, (int)TileY+1);
+				KillBlock((int)TileX-1, (int)TileY+2);
+				KillBlock((int)TileX+1, (int)TileY);
+				KillBlock((int)TileX+1, (int)TileY+1);
+				KillBlock((int)TileX+1, (int)TileY+2);
+			}
+		#endregion
+		
+		//cancel shine-spark
+			//stop movement
+			if(shineDir != 0 && shineDir != 5) 
+			{
+				if(!this.trap)
+				{
+					if(player.velocity.X == -16f || player.velocity.X == 16f)
+					{
+						countDown = true;
+					}
+					this.trap = true;
+				}
+			}
+			else
+			{
+				this.trap = false;
+				countDown = false;
+			}
+			if(countDown) Counter--;
+		
+			int noMap = Lighting.offScreenTiles * 16 + 16;
+			int block = mod.TileType("CrackedBlock");
+			int block2 = mod.TileType("sbBlock");
+			if(player.statMana <= 0 || Counter <= 0 || (player.position.X + player.width) >= (Main.rightWorld - noMap - 16) || (player.position.Y + player.height) <= (Main.topWorld + noMap + 16))
+			{  
+				if(shineDir != 0 && 
+					((CheckLeft(TileX, TileY, (ushort)block, player) || CheckRight(TileX, TileY, (ushort)block, player)) ||
+					(CheckLeft(TileX, TileY, (ushort)block2, player) || CheckRight(TileX, TileY, (ushort)block2, player))))
+				{
+					shineDir = 0;
+					shineDeActive = 0;
+					shineActive = false;
+					Counter = 1;
+				//	Main.projectile[proj].Kill();
+				}
 			}
 		#endregion
 			if(player.height == 42)
@@ -332,5 +371,49 @@ namespace SuperMetroid.Items.Extensions
 				}
 			}
 		}
+		
+	/*	public void KillBlock(int x,int y)
+		{
+			MetroidPlayer.tileTime = 300;
+			int type = mod.TileType("CrackedBlock");
+			int type2 = mod.TileType("sbBlock");
+			WorldGen.KillTile(x, y, false, false, true);
+			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
+		}	*/
+		public void KillBlock(int x,int y)
+		{
+			int block = mod.TileType("CrackedBlock");
+			int block2 = mod.TileType("sbBlock");
+			if(Main.tile[x, y].type == block || Main.tile[x, y].type == block2)
+			{
+				WorldGen.KillTile(x, y,	false, false, true);
+			}
+			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
+		}
+		
+		public bool CheckLeft(int i, int j, ushort type, Player player)
+		{
+			int TileX = i;
+			int TileY = j;
+			
+			bool Active = Main.tile[TileX-1, TileY].active() || Main.tile[TileX-1, TileY+1].active() || Main.tile[TileX-1, TileY +2].active();
+			bool Solid = Main.tileSolid[Main.tile[TileX-1, TileY].type] == true || Main.tileSolid[Main.tile[TileX-1, TileY+1].type] == true || Main.tileSolid[Main.tile[TileX-1, TileY+2].type] == true;
+			bool Type = (Main.tile[TileX-1, TileY].type == type || Main.tile[TileX-1, TileY+1].type == type || Main.tile[TileX-1, TileY+2].type == type);
+			
+			if(Active && Solid && !Type) return true;
+			else return false;
+		}
+		public bool CheckRight(int i, int j, ushort type, Player player)
+		{
+			int TileX = i;
+			int TileY = j;
+			
+			bool Active = (Main.tile[TileX+1, TileY].active() || Main.tile[TileX+1, TileY+1].active() || Main.tile[TileX+1, TileY +2].active());
+			bool Solid = ((Main.tileSolid[Main.tile[TileX+1, TileY].type] == true) || (Main.tileSolid[Main.tile[TileX+1, TileY+1].type] == true) || (Main.tileSolid[Main.tile[TileX+1, TileY+2].type] == true));
+			bool Type = (Main.tile[TileX+1, TileY].type == type || Main.tile[TileX+1, TileY+1].type == type || Main.tile[TileX+1, TileY+2].type == type);
+			
+			if(Active && Solid && !Type) return true;
+			else return false;
+		} 
 	}
 }
