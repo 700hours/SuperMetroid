@@ -66,6 +66,7 @@ namespace SuperMetroid.Projectiles
 					soundDelay = 0;
 				}
 				soundDelay++;
+			// limit length of grapple
 				if(owner.controlUp && maxDist > 1)
 				{
 					maxDist -= 2.5f;
@@ -74,6 +75,7 @@ namespace SuperMetroid.Projectiles
 				{
 					maxDist += 2.5f;
 				}
+			// pull in player to less than max distance
 				if (maxDist > 150)
 				{
 					maxDist -= 5f;
@@ -82,6 +84,10 @@ namespace SuperMetroid.Projectiles
 				{
 					maxDist += 2.5f;
 				}
+			// increase player movement by 20%
+				if(owner.controlLeft) owner.velocity.X -= 0.20f;
+				if(owner.controlRight) owner.velocity.X += 0.20f;
+				
 				owner.velocity = Collision.TileCollision(owner.position, owner.velocity, owner.width, owner.height, owner.controlDown, false);
 				owner.moveSpeed += 1.5f;
 				owner.accRunSpeed += 1.1f;
@@ -102,18 +108,17 @@ namespace SuperMetroid.Projectiles
 				int projX = (int)ProjPos.X >> 4;
 				int projY = (int)ProjPos.Y >> 4;
 				int type = mod.TileType("GrappleBlock");
-				int type2 = mod.TileType("CrumbleGrapple");
-				bool blockCheck = (type == Main.tile[projX, projY].type || type2 == Main.tile[projX, projY].type);
-				if(blockCheck && Main.tileSolid[(int)Main.tile[projX, projY].type]&&Main.tile[projX, projY].active())
+				//Block check in case of swing only on certain tile
+				if(BlockCheck(projX, projY, (ushort) type, owner))
 				{
 					isHooked = true;
-				//	ModPlayer.grappled = true;
+					MetroidPlayer.grappled = true;
 					projectile.velocity = default(Vector2);
 					Vector2 dif = projectile.position - owner.position;
 					float dist = (float)Math.Sqrt (dif.X * dif.X + dif.Y *dif.Y);
 					maxDist = dist;
 				}
-				else if(!blockCheck && Collision.SolidCollision(projectile.position, projectile.width, projectile.height))
+				else if(Collision.SolidCollision(projectile.position, projectile.width, projectile.height))
 				{
 					projectile.active = false;
 				}
@@ -124,6 +129,7 @@ namespace SuperMetroid.Projectiles
 			else
 			{
 				projectile.timeLeft = 0;
+				MetroidPlayer.grappled = false;
 			}
 			Vector2 OwnerPos = new Vector2(owner.position.X+owner.width/2, owner.position.Y+owner.height/2);
 			owner.itemTime = 2;
@@ -142,6 +148,19 @@ namespace SuperMetroid.Projectiles
 			MetroidWorld.DrawChain(ItemPos, ProjPos, texture, s);
 			
 			return true;
+		}
+		
+		public bool BlockCheck(int i, int j, ushort type, Player player)
+		{
+			int TileX = i;
+			int TileY = j;
+			
+			bool Active = Main.tile[TileX, TileY].active() || Main.tile[TileX-1, TileY].active() || Main.tile[TileX+1, TileY].active() || Main.tile[TileX, TileY+1].active() || Main.tile[TileX, TileY -1].active();
+			bool Solid = Main.tileSolid[Main.tile[TileX, TileY].type] == true  || Main.tileSolid[Main.tile[TileX-1, TileY].type] == true || Main.tileSolid[Main.tile[TileX+1, TileY].type] == true || Main.tileSolid[Main.tile[TileX, TileY+1].type] == true || Main.tileSolid[Main.tile[TileX, TileY-1].type] == true;
+			bool Type = (Main.tile[TileX, TileY].type == type || Main.tile[TileX-1, TileY].type == type || Main.tile[TileX+1, TileY].type == type || Main.tile[TileX, TileY+1].type == type || Main.tile[TileX, TileY-1].type == type);
+			
+			if(Active && Solid && Type) return true;
+			else return false;
 		}
 	}
 }

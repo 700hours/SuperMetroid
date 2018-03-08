@@ -64,14 +64,13 @@ namespace SuperMetroid.Projectiles
 				}
 			}
 
-			if(player.velocity.Y == 0 && player.velocity.X == 0 && (player.height == 14 || player.itemAnimation != 0 || player.controlHook || player.grapCount != 0/* || ModPlayer.grappled*/))
+			if(player.velocity.Y == 0 && player.velocity.X == 0 && (player.height == 14 || player.itemAnimation != 0 || player.controlHook || player.grapCount != 0 || MetroidPlayer.grappled))
 			{
 				projectile.Kill();
 			}
 			foreach(Projectile Pr in Main.projectile) if (Pr!= null)
 			{
-				if(Pr.active && Pr.type == mod.ProjectileType("ShineSpark") ||
-					Pr.active && Pr.type == mod.ProjectileType("ScrewAttackLeft"))
+				if(Pr.active && Pr.type == mod.ProjectileType("ShineSpark"))
 				{
 					  projectile.Kill();
 				}

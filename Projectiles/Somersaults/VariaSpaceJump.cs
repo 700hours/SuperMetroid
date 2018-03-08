@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using Terraria.GameInput;
+using SuperMetroid;
 
 namespace SuperMetroid.Projectiles.Somersaults
 {
@@ -16,7 +17,7 @@ namespace SuperMetroid.Projectiles.Somersaults
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Varia Spacejump");
+			DisplayName.SetDefault("Varia Space Jump");
 			Main.projFrames[projectile.type] = 4;
 		}
 		public override void SetDefaults()
@@ -58,7 +59,7 @@ namespace SuperMetroid.Projectiles.Somersaults
 					SpaceJumpStart = 6;
 				}
 			}
-			if(P.velocity.Y == 0 || P.velocity.X == 0 || P.height == 14 || P.itemAnimation != 0 || P.controlHook || P.grapCount != 0/* || ModPlayer.grappled*/)
+			if(P.velocity.Y == 0 || P.velocity.X == 0 || P.height == 14 || P.itemAnimation != 0 || P.controlHook || P.grapCount != 0 || MetroidPlayer.grappled)
 			{
 				projectile.Kill();
 			}
