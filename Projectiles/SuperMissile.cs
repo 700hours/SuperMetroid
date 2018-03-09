@@ -132,14 +132,16 @@ namespace SuperMetroid.Projectiles
 		
 		public void KillBlock(int x,int y)
 		{
-		//	MetroidPlayer.tileTime = 300;
+		//	modPlayer.tileTime = 300;
 		//	Main.tile[x, y].type = (ushort)type;
 			WorldGen.KillTile(x, y,	false, false, true);
 			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
 		}
 		public void ShutterSwitch(int x,int y)
 		{
-			MetroidPlayer.tileTime = 300;
+			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
+			
+			modPlayer.tileTime = 300;
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ShutterDoor"), projectile.position);
 			int type = mod.TileType("EmptyShutter");
 			if(Main.tile[x, y].type == mod.TileType("BlueSwitchleft"))
@@ -161,10 +163,12 @@ namespace SuperMetroid.Projectiles
 		}
 		public void DoorToggle(int x, int y)
 		{
+			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
+		
 		//	to open entire door at once
 			Wiring.TripWire(x, y, 1, 1);
 				
-			MetroidPlayer.tileTime = 300;
+			modPlayer.tileTime = 300;
 			
 			int type = mod.TileType("vBlueDoor");
 			int type2 = mod.TileType("ChozoDoor");

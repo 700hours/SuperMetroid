@@ -8,7 +8,7 @@ using Terraria.ObjectData;
 
 namespace SuperMetroid.Tiles.Extensions
 {
-	public class ChargeBeam : ModTile
+	public class PowerBeam : ModTile
 	{
 		public override void SetDefaults()
 		{
@@ -20,8 +20,8 @@ namespace SuperMetroid.Tiles.Extensions
 			Main.tileBlockLight[Type]		= false;
 			Main.tileNoSunLight[Type]		= false;
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Charge Beam");
-			AddMapEntry(new Color(200, 200, 200), name);
+			name.SetDefault("Power Beam");
+			AddMapEntry(new Color(200, 125, 50), name);
 			disableSmartCursor = true;
 			animationFrameHeight = 18;
 		}
@@ -29,23 +29,10 @@ namespace SuperMetroid.Tiles.Extensions
 		{
 			var modPlayer = Main.LocalPlayer.GetModPlayer<MetroidPlayer>(mod);
 			if(modPlayer.isLighted)
-			{
-				r = 0.753f;
-				g = 0.753f;
-				b = 0.753f;
-			}
-		}
-		public override void AnimateTile(ref int frame, ref int frameCounter)
-		{
-			frameCounter++;
-			if (frameCounter > 8)
-			{
-				frameCounter = 0;
-				frame++;
-				if (frame > 1)
-				{
-					frame = 0;
-				}
+			{	
+				r = 0.4f;
+				g = 0.4f;
+				b = 0.4f;
 			}
 		}
 	}

@@ -31,6 +31,7 @@ namespace SuperMetroid.Projectiles
 		}
 		int counter = 0;
 		bool soundInit = false;
+		
 		public override void AI()
 		{
 			if(!soundInit) 
@@ -41,8 +42,11 @@ namespace SuperMetroid.Projectiles
 			
 		#region tile functions
 			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
-				
+			
+		//	blocks	
 			int type = mod.TileType("CrackedBlock");
+			int type8 = mod.TileType("UpgradeBall");
+		//	doors
 			int type2 = mod.TileType("BlueSwitchleft");
 			int type3 = mod.TileType("BlueSwitchright");
 			int type4 = mod.TileType("vBlueDoor");
@@ -51,12 +55,15 @@ namespace SuperMetroid.Projectiles
 			int type7 = mod.TileType("vMissileDoor");
 			
 			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
+			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
 			
+		//  collision	
 			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
 			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool blueSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool chozoDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type5 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool missileDoor = (type6 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type7 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool ball = (type8 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			if(collision)
 			{
 				PreKill(0);
@@ -75,13 +82,17 @@ namespace SuperMetroid.Projectiles
 				}
 				if(missileDoor)
 				{
-					MetroidPlayer.counter++;
+					modPlayer.counter++;
 					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/MDoorHit"), projectile.position);
-					if(MetroidPlayer.counter >= 5)
+					if(modPlayer.counter >= 5)
 					{
 						DoorToggle((int)tilev.X, (int)tilev.Y);
-						MetroidPlayer.counter = 0;
+						modPlayer.counter = 0;
 					}
+				}
+				if(ball)
+				{
+					DropRandomUpgrade((int)tilev.X, (int)tilev.Y, Main.player[projectile.owner]);
 				}
 				projectile.active = false;
 			}
@@ -91,7 +102,7 @@ namespace SuperMetroid.Projectiles
 			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
 			Main.dust[dust].noGravity = true;
 			
-
+		//	Gold Torizo immunity check
 		/*	foreach(NPC N in Main.npc)
 			{
 				if(!N.active) continue;
@@ -109,30 +120,7 @@ namespace SuperMetroid.Projectiles
 					else
 					{ 	projectile.damage = 20;		}
 				}
-			}
-			int projX = (int)((projectile.position.X+(projectile.width*0.5))/16);
-			int projY = (int)(projectile.position.Y/16);
-			int type = Main.tile[projX, projY].type;
-			if(Collision.SolidCollision(new Vector2(projectile.position.X,projectile.position.Y), projectile.width, projectile.height) && type == mod.TileType("Closed Left Missile Door") ||
-				Collision.SolidCollision(new Vector2(projectile.position.X,projectile.position.Y), projectile.width, projectile.height) && type == mod.TileType("Closed Left Missile Door") ||
-				Collision.SolidCollision(new Vector2(projectile.position.X,projectile.position.Y), projectile.width, projectile.height) && type == mod.TileType("Closed Right Missile Door") ||
-				Collision.SolidCollision(new Vector2(projectile.position.X,projectile.position.Y), projectile.width, projectile.height) && type == mod.TileType("Closed Right Missile Door")) 
-			{
-				mHitDoor++;
-				if(mHitDoor > 0 && mHitDoor < 5)
-				{
-					Main.NewText(""+mHitDoor, 176, 196, 222);
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/MBoorHit"), projectile.position);
-				}
-				if(mHitDoor == 5)
-				{
-					mHitDoor = 0;
-				//	Main.PlaySound(2,projX,projY,SoundHandler.soundID["Door Opening"]);
-				//	Config.OpenCustomDoor(projX+4, projY, 1, Config.tileDefs.doorToggle[type]);
-				//	Config.OpenCustomDoor(projX-4, projY, 1, Config.tileDefs.doorToggle[type]);
-				//	ModPlayer.openDoor = 180;
-				}
-			}*/
+			} */
 		}
 
 		public override bool PreKill(int timeleft)
@@ -153,17 +141,16 @@ namespace SuperMetroid.Projectiles
 				Main.dust[num72].noGravity = true;
 			}
 		}
-
+	#region tile interaction
 		public void KillBlock(int x,int y)
 		{
-			MetroidPlayer.tileTime = 300;
-			int type = mod.TileType("EmptyBlock");
-			Main.tile[x, y].type = (ushort)type;
+			WorldGen.KillTile(x, y,	false, false, true);
 			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
 		}
 		public void ShutterSwitch(int x,int y)
 		{
-			MetroidPlayer.tileTime = 300;
+			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
+			modPlayer.tileTime = 300;
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ShutterDoor"), projectile.position);
 			int type = mod.TileType("EmptyShutter");
 			if(Main.tile[x, y].type == mod.TileType("BlueSwitchleft"))
@@ -177,10 +164,12 @@ namespace SuperMetroid.Projectiles
 		}
 		public void DoorToggle(int x, int y)
 		{
-		//	to open entire door at once, might consider wiring
+			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
+		
+		//	to open entire door at once
 			Wiring.TripWire(x, y, 1, 1);
 				
-			MetroidPlayer.tileTime = 300;
+			modPlayer.tileTime = 300;
 			
 			int type = mod.TileType("vBlueDoor");
 			int type2 = mod.TileType("ChozoDoor");
@@ -193,8 +182,117 @@ namespace SuperMetroid.Projectiles
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorOpening"), projectile.position);
 			
 			if(Main.tile[x, y].type == (ushort)type || Main.tile[x, y].type == (ushort)type4) Main.tile[x, y].type = (ushort)transform;
-			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform2;
+			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform3;
 			if(Main.tile[x, y].type == (ushort)type3) Main.tile[x, y].type = (ushort)transform3;
 		}
+		
+		string[] ItemArray = new string[] 
+			{	"ChargeBeam" , "IceBeam" , "WaveBeam" , "PlasmaBeam" , "Spazer" , 
+				"HiJump" , "ScrewAttack" , "SpaceJump" , "SpeedBooster" , "XRayScope" 
+				"VariaSuit" , "GravitySuit" , 
+				"Missile" , "SuperMissile" , "EnergyTank" , "ReserveTank" };
+		string RandomItem;
+		public void DropRandomUpgrade(int x, int y, Player player)
+		{
+			var modPlayer = player.GetModPlayer<MetroidPlayer>(mod);
+			
+			RandomItem = ItemArray[Main.rand.Next(0, ItemArray.Length - 1)];
+			if(RandomItem != "VariaSuit" && RandomItem != "GravitySuit" && RandomItem != "Missile" && RandomItem != "SuperMissile" && RandomItem != "EnergyTank" && RandomItem != "ReserveTank")
+			{
+				if(RandomItem == "ChargeBeam" && !modPlayer.haveCharge)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveCharge = true;
+				}
+				if(RandomItem == "IceBeam" && !modPlayer.haveIce)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveIce = true;
+				}
+				if(RandomItem == "WaveBeam" && !modPlayer.haveWave)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveWave = true;
+				}
+				if(RandomItem == "Spazer" && !modPlayer.haveSpazer)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpazer = true;
+				}
+				if(RandomItem == "PlasmaBeam" && !modPlayer.havePlasma)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.havePlasma = true;
+				}
+				if(RandomItem == "SpeedBooster" && !modPlayer.haveSpeed)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpeed = true;
+				}
+				if(RandomItem == "HiJump" && !modPlayer.haveJump)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveJump = true;
+				}
+				if(RandomItem == "ScrewAttack" && !modPlayer.haveScrew)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveScrew = true;
+				}
+				if(RandomItem == "SpaceJump" && !modPlayer.haveSpaceJump)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpaceJump = true;
+				}
+				if(RandomItem == "XRayScope" && !modPlayer.haveScope)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpaceJump = true;
+				}
+				if(RandomItem == "GrappleBeam" && !modPlayer.haveGrapple)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveGrapple = true;
+				}
+			}
+			else 
+			{
+				if(RandomItem == "VariaSuit" && modPlayer.variaUpg != 1)
+				{
+					modPlayer.variaUpg = 1;
+				}
+				if(RandomItem == "GravitySuit" && modPlayer.gravityUpg != 1)
+				{
+					modPlayer.gravityUpg = 1;
+				}
+				if(RandomItem == "Missile" && modPlayer.missileUpg < 50)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType("Missile"), 5, false, -1, true, false);
+					modPlayer.missileUpg += 1;
+				}
+				if(RandomItem == "SuperMissile" && modPlayer.smissileUpg < 10)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType("SuperMissile"), 5, false, -1, true, false);
+					modPlayer.smissileUpg += 1;
+				}
+				if(RandomItem == "EnergyTank" && player.statLifeMax < 400)
+				{
+					player.statLifeMax += 20;
+					player.statLife += 20;
+				}
+				if(RandomItem == "ReserveTank" && modPlayer.reserveTank < 5)
+				{
+					modPlayer.reserveTank += 1;
+				}
+			}
+			WorldGen.KillTile(x, y,	false, false, true);
+		}
+	#endregion
 	}
 }
+//	Old Killblock() code
+//	for block respawn
+/*	modPlayer.tileTime = 300;
+	int type = mod.TileType("EmptyBlock");
+	Main.tile[x, y].type = (ushort)type;
+	Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);	*/		
