@@ -43,7 +43,7 @@ namespace SuperMetroid.Items.Extensions
 		#region ScrewAttack
 			if(player.controlRight || player.velocity.X > 0 && player.velocity.Y != 0)
 			{
-				if(player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0/* && !ModPlayer.grappled*/)
+				if(player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0 && !MetroidPlayer.grappled)
 				{
 					Attacking = false;
 				}
@@ -65,7 +65,7 @@ namespace SuperMetroid.Items.Extensions
 
 			if(player.controlLeft || player.velocity.X < 0 && player.velocity.Y != 0)
 			{
-				if(player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0/* && !ModPlayer.grappled*/)
+				if(player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0 && !MetroidPlayer.grappled)
 				{
 					Attacking = false;
 				}
@@ -86,7 +86,7 @@ namespace SuperMetroid.Items.Extensions
 			}
 		#endregion
 
-			if(Attacking && player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0/* && !ModPlayer.grappled*/)
+			if(Attacking && player.velocity.Y != 0 && player.velocity.X != 0 && player.itemAnimation == 0 && player.releaseHook && player.grapCount == 0 && !MetroidPlayer.grappled)
 			{
 				player.head = -1;
 				player.body = -1;
@@ -98,6 +98,16 @@ namespace SuperMetroid.Items.Extensions
 				Main.dust[dust].noGravity = true;
 				Main.dust[dust].noLight = false;
 			}
+		}
+		public override bool OnPickup(Player player)
+		{
+			var modPlayer = player.GetModPlayer<MetroidPlayer>(mod);
+			if(modPlayer.ffTimer <= 0)
+			{
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ItemFanfare"), player.position);
+				modPlayer.ffTimer = 3600;
+			}
+			return true;
 		}
 	}
 }

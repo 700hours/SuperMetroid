@@ -14,10 +14,10 @@ namespace SuperMetroid.Items.Extensions
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Speed Booster");
-			Tooltip.SetDefault("Run fast enough to activate it."
-				+ 	"\nWhen it's active, press 'DOWN' to charge a Shine-Spark."
-				+ 	"\nRelease the charge by pressing 'JUMP'--allowing you to super jump."
-				+	"\nBefore you super jump completely, you can hold which direction you want to go.");
+			Tooltip.SetDefault("Run fast enough to activate it holding 'SHIFT'"
+				+ 	"\nWhen it's active, press 'DOWN' to charge a Shine-Spark"
+				+ 	"\nRelease the charge by pressing 'JUMP'--allowing you to super jump"
+				+	"\nBefore you super jump completely, you can hold which direction you want to go");
 		}
 		public override void SetDefaults()
 		{
@@ -45,7 +45,7 @@ namespace SuperMetroid.Items.Extensions
 		static int manaDelay = 0;
 		static int proj = -1;
 		
-		Vector2 tilev;
+		Vector2 tilev, oldPos;
 		int TileX, TileY, Counter = 1;
 		bool trap = false, countDown = false;
 		
@@ -293,7 +293,7 @@ namespace SuperMetroid.Items.Extensions
 			}
 			
 		#region tile functions
-		//check for collision and destructed tiles
+		//check for collision and destruct-able tiles
 			tilev = new Vector2(player.position.X/16, player.position.Y/16);
 			TileX = (int)tilev.X;
 			TileY = (int)tilev.Y;
@@ -311,9 +311,7 @@ namespace SuperMetroid.Items.Extensions
 			}
 		#endregion
 		
-		//cancel shine-spark
-			//stop movement
-			if(shineDir != 0 && shineDir != 5) 
+		/*	if(shineDir != 0 && shineDir != 5) 
 			{
 				if(!this.trap)
 				{
@@ -327,26 +325,28 @@ namespace SuperMetroid.Items.Extensions
 			else
 			{
 				this.trap = false;
-				countDown = false;
 			}
-			if(countDown) Counter--;
+			if(countDown && player.position == player.oldPosition) Counter--;
+			if(Counter < 0) Counter = 1;	*/
 		
+		//cancel shine-spark
+			//stop movement
 			int noMap = Lighting.offScreenTiles * 16 + 16;
 			int block = mod.TileType("CrackedBlock");
 			int block2 = mod.TileType("sbBlock");
-			if(player.statMana <= 0 || Counter <= 0 || (player.position.X + player.width) >= (Main.rightWorld - noMap - 16) || (player.position.Y + player.height) <= (Main.topWorld + noMap + 16))
-			{  
-				if(shineDir != 0 && 
-					((CheckLeft(TileX, TileY, (ushort)block, player) || CheckRight(TileX, TileY, (ushort)block, player)) ||
-					(CheckLeft(TileX, TileY, (ushort)block2, player) || CheckRight(TileX, TileY, (ushort)block2, player))))
-				{
-					shineDir = 0;
-					shineDeActive = 0;
-					shineActive = false;
-					Counter = 1;
-				//	Main.projectile[proj].Kill();
-				}
+		//	if(player.statMana <= 0) //(player.position.X + player.width) >= (Main.rightWorld - noMap - 16) || (player.position.Y + player.height) <= (Main.bottomWorld + noMap + 16))
+			if(shineDir != 0 && player.position == player.oldPosition &&
+				((CheckLeft(TileX, TileY, (ushort)block, player) || CheckRight(TileX, TileY, (ushort)block, player)) ||
+				(CheckLeft(TileX, TileY, (ushort)block2, player) || CheckRight(TileX, TileY, (ushort)block2, player))) ||
+				player.statMana <= 0)
+			{
+				shineDir = 0;
+				shineDeActive = 0;
+				shineActive = false;
+				Counter = 1;
+			//	Main.projectile[proj].Kill();
 			}
+				
 		#endregion
 			if(player.height == 42)
 			{
@@ -372,14 +372,6 @@ namespace SuperMetroid.Items.Extensions
 			}
 		}
 		
-	/*	public void KillBlock(int x,int y)
-		{
-			MetroidPlayer.tileTime = 300;
-			int type = mod.TileType("CrackedBlock");
-			int type2 = mod.TileType("sbBlock");
-			WorldGen.KillTile(x, y, false, false, true);
-			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
-		}	*/
 		public void KillBlock(int x,int y)
 		{
 			int block = mod.TileType("CrackedBlock");
@@ -415,5 +407,15 @@ namespace SuperMetroid.Items.Extensions
 			if(Active && Solid && !Type) return true;
 			else return false;
 		} 
+		public override bool OnPickup(Player player)
+		{
+			var modPlayer = player.GetModPlayer<MetroidPlayer>(mod);
+			if(modPlayer.ffTimer <= 0)
+			{
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ItemFanfare"), player.position);
+				modPlayer.ffTimer = 3600;
+			}
+			return true;
+		}
 	}
 }

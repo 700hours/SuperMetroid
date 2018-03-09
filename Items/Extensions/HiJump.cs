@@ -7,12 +7,12 @@ using SuperMetroid;
 
 namespace SuperMetroid.Items.Extensions
 {
-	public class SpaceJump : ModItem
+	public class HiJump : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Speed Booster");
-			Tooltip.SetDefault("Time a jump mid-air to jump again");
+			DisplayName.SetDefault("Hi-Jump");
+			Tooltip.SetDefault("Increases jump height by 2/3");
 		}
 		public override void SetDefaults()
 		{
@@ -32,30 +32,9 @@ namespace SuperMetroid.Items.Extensions
 			recipe.SetResult(this, 1);
 			recipe.AddRecipe();
 		}
-				
-		int jumpTimer = 0;
 		public override void UpdateAccessory(Player player, bool hideVisuals)
-		{	
-			if(player.velocity.Y > 0)
-			{
-				jumpTimer++;
-			}
-			else
-			{
-				jumpTimer = 0;
-			}
-			if(player.velocity.X != 0/* && !ModPlayer.ballstate*/)
-			{
-				//player.doubleJump = true; //testing to override the original code? 
-				if(player.controlJump && player.releaseJump && player.velocity.Y != 0 && player.velocity.Y >= 0.5f && jumpTimer < 30)
-				{
-					jumpTimer = 0;
-					//player.jumpAgain = true; //testing to override the original code? 
-					//original code
-					player.velocity.Y = -Player.jumpSpeed * player.gravDir;
-					player.jump = Player.jumpHeight;
-				}
-			}
+		{
+			Player.jumpSpeed /= 2f/3f;
 		}
 		public override bool OnPickup(Player player)
 		{

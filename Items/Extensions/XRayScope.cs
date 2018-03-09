@@ -7,12 +7,12 @@ using SuperMetroid;
 
 namespace SuperMetroid.Items.Extensions
 {
-	public class SpaceJump : ModItem
+	public class HiJump : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Speed Booster");
-			Tooltip.SetDefault("Time a jump mid-air to jump again");
+			DisplayName.SetDefault("Hi-Jump");
+			Tooltip.SetDefault("Increases jump height by 2/3");
 		}
 		public override void SetDefaults()
 		{
@@ -33,27 +33,34 @@ namespace SuperMetroid.Items.Extensions
 			recipe.AddRecipe();
 		}
 				
-		int jumpTimer = 0;
-		public override void UpdateAccessory(Player player, bool hideVisuals)
-		{	
-			if(player.velocity.Y > 0)
+		public override void HoldItem(Player player)
+		{
+			var modPlayer = player.GetModPlayer<MetroidPlayer>(mod);
+			
+			if(Main.mouseLeft) modPlayer.isLighted = true;
+			else modPlayer.isLighted = false;
+		}
+		int soundLoop = 0, SoundStart = 0;
+		public override void UseItem(Player player)
+		{
+			player.nightVision = true;
+			player.findTreasure = true;
+			
+			soundLoop++;
+			SoundStart++;
+				
+			if((float)soundLoop >= 40.92)
 			{
-				jumpTimer++;
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/XRay"), new Vector2(Main.mouseX, Main.mouseY));
+				soundLoop = 0;
 			}
-			else
+			if(SoundStart > 1 && SoundStart < 5)
 			{
-				jumpTimer = 0;
-			}
-			if(player.velocity.X != 0/* && !ModPlayer.ballstate*/)
-			{
-				//player.doubleJump = true; //testing to override the original code? 
-				if(player.controlJump && player.releaseJump && player.velocity.Y != 0 && player.velocity.Y >= 0.5f && jumpTimer < 30)
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/XRayStart"), new Vector2(Main.mouseX, Main.mouseY));
+				SoundStart = 4;
+				if(SoundStart > 6)
 				{
-					jumpTimer = 0;
-					//player.jumpAgain = true; //testing to override the original code? 
-					//original code
-					player.velocity.Y = -Player.jumpSpeed * player.gravDir;
-					player.jump = Player.jumpHeight;
+					SoundStart = 6;
 				}
 			}
 		}
