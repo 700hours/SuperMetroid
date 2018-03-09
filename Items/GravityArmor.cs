@@ -7,8 +7,8 @@ namespace SuperMetroid.Items
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Power Armor");
-			Tooltip.SetDefault("Press R to cycle");
+			DisplayName.SetDefault("Gravity Armor");
+			Tooltip.SetDefault("Press R to toggle equip");
 		}
 		public override void SetDefaults()
 		{
