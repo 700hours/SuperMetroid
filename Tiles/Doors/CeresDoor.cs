@@ -25,24 +25,23 @@ namespace SuperMetroid.Tiles.Doors
 			AddMapEntry(new Color(200, 150, 100), name);
 			disableSmartCursor = true;
 		}
-		public static bool isLighted = false;
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
 		{
-			if(isLighted)
-			{
-				r = 0.164f;
-				g = 0.258f;
-				b = 0.478f;
-			}
-			Player player = Main.player[Main.myPlayer];
-			Rectangle PB = new Rectangle((int)player.position.X - 64, (int)player.position.Y - 64, player.width + 64, player.height + 64);
-			Rectangle TB = new Rectangle(i*16, j*16, 16, 16);
-			if(player.Hitbox.Intersects(TB)) isLighted = true;
-			else isLighted = false;
+			r = 0.164f;
+			g = 0.258f;
+			b = 0.478f;
+		}
+		
+		int type = 0;
+		public override void HitWire(int i, int j)
+		{
+			type = mod.TileType("CeresEmptyDoor");
+			Main.tile[i, j].type = (ushort)type;
 		}
 	}
 }
 
+// old code archive
 /*
 bool isLighted = false;
 public void AddLight(int x, int y, ref float r, ref float g, ref float b)

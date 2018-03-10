@@ -7,11 +7,11 @@ using Terraria.ModLoader;
 
 namespace SuperMetroid.Projectiles.Beams
 {
-	public class AllBeamChargeLead : ModProjectile
+	public class AllSpazerChargeLead : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("All Beam Charge Lead");
+			DisplayName.SetDefault("All Spazer Charge Lead");
 		}
 		public override void SetDefaults()
 		{
@@ -35,6 +35,7 @@ namespace SuperMetroid.Projectiles.Beams
 		int Pindex5 = -1;
 		int Pindex6 = -1;
 		int Pindex7 = -1;
+		int Pindex8 = -1;
 		public override void AI() 
 		{
 			CHARGE++;
@@ -83,8 +84,9 @@ namespace SuperMetroid.Projectiles.Beams
 			O.heldProj = P.whoAmI;
 			O.direction = P.direction;
 			O.itemRotation = (float)Math.Atan2((MY-PlayerCentreY)*O.direction,(MX-PlayerCentreX)*O.direction) -0.05f*O.direction;
-			//	if(Pindex != -1 && Main.projectile[Pindex].active) Main.projectile[Pindex].RunMethod("TotalRotate",P.position-new Vector2(3f*O.direction,3f*O.gravDir),new Vector2((float)Math.Cos(targetrotation),(float)Math.Sin(targetrotation)));
-			//	if(Pindex2 != -1 && Main.projectile[Pindex2].active) Main.projectile[Pindex2].RunMethod("TotalRotate",P.position-new Vector2(3f*O.direction,3f*O.gravDir),new Vector2((float)Math.Cos(targetrotation),(float)Math.Sin(targetrotation)));
+		//	if(Pindex != -1 && Main.projectile[Pindex].active) Main.projectile[Pindex].RunMethod("TotalRotate",P.position-new Vector2(3f*O.direction,3f*O.gravDir),new Vector2((float)Math.Cos(targetrotation),(float)Math.Sin(targetrotation)));
+		//	if(Pindex2 != -1 && Main.projectile[Pindex2].active) Main.projectile[Pindex2].RunMethod("TotalRotate",P.position-new Vector2(3f*O.direction,3f*O.gravDir),new Vector2((float)Math.Cos(targetrotation),(float)Math.Sin(targetrotation)));
+		//	if(Pindex3 != -1 && Main.projectile[Pindex3].active) Main.projectile[Pindex3].RunMethod("TotalRotate",P.position-new Vector2(3f*O.direction,3f*O.gravDir),new Vector2((float)Math.Cos(targetrotation),(float)Math.Sin(targetrotation)));
 
 			P.width = (int)(16f*P.scale);
 			P.height = (int)(16f*P.scale);
@@ -92,11 +94,11 @@ namespace SuperMetroid.Projectiles.Beams
 		#region sounds and dust
 			if(CHARGE > 9 && CHARGE < 11)
 			{
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/ChargeStartup"), projectile.position);
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/ChargeStartup"), P.position);
 			}
 			else if(CHARGE > 97 && CHARGE < 99)
 			{
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/ChargeMax"), projectile.position);
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/ChargeMax"), P.position);
 			}
 			if(CHARGE > 99)
 			{
@@ -106,27 +108,26 @@ namespace SuperMetroid.Projectiles.Beams
 			}
 		#endregion
 		}
-		public override void Kill(int timeleft)
+		public override void Kill(int timeLeft)
 		{
 			Projectile P = projectile;
 			P.active = false;
 			Player O = Main.player[P.owner];
-		//	if(O.height == 42) ShootOnDeath(O,P);
 			float PlayerCentreX = O.position.X + O.width * 0.5f;
 			float PlayerCentreY = O.position.Y + O.height * 0.5f;
 			if(O.height == 14 && CHARGE > 99 && O.statMana > 9)
 			{
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/LayBomb"), O.position);
-				Pindex3 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,-5,-2,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
-				Pindex4 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,-3,-4,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
-				Pindex5 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,0,-5,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
-				Pindex6 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,3,-4,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
-				Pindex7 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,5,-2,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
-				Main.projectile[Pindex3].timeLeft = 90;
+				Pindex4 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,-5,-2,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
+				Pindex5 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,-3,-4,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
+				Pindex6 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,0,-5,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
+				Pindex7 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,3,-4,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
+				Pindex8 = Projectile.NewProjectile(PlayerCentreX,PlayerCentreY+4,5,-2,mod.ProjectileType("MorphBomb"),10,0,O.whoAmI);
 				Main.projectile[Pindex4].timeLeft = 90;
 				Main.projectile[Pindex5].timeLeft = 90;
 				Main.projectile[Pindex6].timeLeft = 90;
 				Main.projectile[Pindex7].timeLeft = 90;
+				Main.projectile[Pindex8].timeLeft = 90;
 				O.statMana -= 10;
 				O.manaRegenDelay = (int)O.maxRegenDelay;
 			}
@@ -136,58 +137,60 @@ namespace SuperMetroid.Projectiles.Beams
 		}
 		public void ShootOnDeath(Player O, Projectile P)
 		{
-			int manaCost = (79 - (int)((float)O.inventory[O.selectedItem].mana*O.manaCost));
-			if(CHARGE > 99 && O.statMana >= manaCost && O.height == 42)
+			float PlayerCentreX = O.position.X + O.width * 0.5f;
+			float PlayerCentreY = O.position.Y + O.height * 0.5f;
+			// angle from centre of player to mouse
+			float Angle = (float)Math.Atan2(Main.screenPosition.Y + Main.mouseY - PlayerCentreY,
+											Main.screenPosition.X + Main.mouseX - PlayerCentreX);
+			if(CHARGE > 99 && O.statMana > (59 - (int)((float)O.inventory[O.selectedItem].mana*O.manaCost)) && O.height == 42)
 			{
-				float PlayerCentreX = O.position.X + O.width * 0.5f;
-				float PlayerCentreY = O.position.Y + O.height * 0.5f;
-			
-				// angle from centre of player to mouse
-				float Angle = (float)Math.Atan2(Main.screenPosition.Y + Main.mouseY - PlayerCentreY,
-												Main.screenPosition.X + Main.mouseX - PlayerCentreX);
-
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/TripleBeam"), projectile.position);
-				Pindex = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllBeamChargeShot1"), 100*(int)O.rangedDamage, 3.0f, Main.myPlayer);
-				Pindex2 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllBeamChargeShot2"), 100*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/AllBeam"), O.position);
+				Pindex = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazerChargeShot1"), 70*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Pindex2 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazerChargeShot2"), 70*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Pindex3 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazerChargeShot3"), 70*(int)O.rangedDamage, 3.0f, Main.myPlayer);
 				Main.projectile[Pindex].rotation = Angle;
 				Main.projectile[Pindex2].rotation = Angle;
+				Main.projectile[Pindex3].rotation = Angle;
 
 				Main.projectile[Pindex].position.X = PlayerCentreX - Main.projectile[Pindex].width * 0.5f;
 				Main.projectile[Pindex].position.Y = PlayerCentreY - Main.projectile[Pindex].height * 0.5f;
 				Main.projectile[Pindex2].position.X = PlayerCentreX - Main.projectile[Pindex2].width * 0.5f;
 				Main.projectile[Pindex2].position.Y = PlayerCentreY - Main.projectile[Pindex2].height * 0.5f;
+				Main.projectile[Pindex3].position.X = PlayerCentreX - Main.projectile[Pindex2].width * 0.5f;
+				Main.projectile[Pindex3].position.Y = PlayerCentreY - Main.projectile[Pindex2].height * 0.5f;
 				// for use in the projectile cs
 				Main.projectile[Pindex].ai[0] = Angle;
 				Main.projectile[Pindex].ai[1] = (float)Main.myPlayer;
 				Main.projectile[Pindex2].ai[0] = Angle;
 				Main.projectile[Pindex2].ai[1] = (float)Main.myPlayer;
-				O.statMana -= 80 - (int)((float)O.inventory[O.selectedItem].mana*O.manaCost);
+				Main.projectile[Pindex3].ai[0] = Angle;
+				Main.projectile[Pindex3].ai[1] = (float)Main.myPlayer;
+				O.statMana -= 60 - (int)((float)O.inventory[O.selectedItem].mana*O.manaCost);
 				O.manaRegenDelay = (int)O.maxRegenDelay;
 			}
-			else /*if(O.height == 42)*/
+			else if(O.height == 42)
 			{
-				float PlayerCentreX = O.position.X + O.width * 0.5f;
-				float PlayerCentreY = O.position.Y + O.height * 0.5f;
-			
-				// angle from centre of player to mouse
-				float Angle = (float)Math.Atan2(Main.screenPosition.Y + Main.mouseY - PlayerCentreY,
-												Main.screenPosition.X + Main.mouseX - PlayerCentreX);
-
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/TripleBeam"), projectile.position);
-				Pindex = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllBeam1"), 50*(int)O.rangedDamage, 3.0f, Main.myPlayer);
-				Pindex2 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllBeam2"), 50*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/AllBeam"), O.position);
+				Pindex = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazer1"), 35*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Pindex2 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazer2"), 35*(int)O.rangedDamage, 3.0f, Main.myPlayer);
+				Pindex3 = Projectile.NewProjectile(0.0f, 0.0f, 0.0f, 0.0f, mod.ProjectileType("AllSpazer3"), 35*(int)O.rangedDamage, 3.0f, Main.myPlayer);
 				Main.projectile[Pindex].rotation = Angle;
 				Main.projectile[Pindex2].rotation = Angle;
+				Main.projectile[Pindex3].rotation = Angle;
 
 				Main.projectile[Pindex].position.X = PlayerCentreX - Main.projectile[Pindex].width * 0.5f;
 				Main.projectile[Pindex].position.Y = PlayerCentreY - Main.projectile[Pindex].height * 0.5f;
 				Main.projectile[Pindex2].position.X = PlayerCentreX - Main.projectile[Pindex2].width * 0.5f;
 				Main.projectile[Pindex2].position.Y = PlayerCentreY - Main.projectile[Pindex2].height * 0.5f;
+				Main.projectile[Pindex3].position.X = PlayerCentreX - Main.projectile[Pindex2].width * 0.5f;
+				Main.projectile[Pindex3].position.Y = PlayerCentreY - Main.projectile[Pindex2].height * 0.5f;
 				// for use in the projectile cs
 				Main.projectile[Pindex].ai[0] = Angle;
 				Main.projectile[Pindex].ai[1] = (float)Main.myPlayer;
 				Main.projectile[Pindex2].ai[0] = Angle;
 				Main.projectile[Pindex2].ai[1] = (float)Main.myPlayer;
+				Main.projectile[Pindex3].ai[0] = Angle;
+				Main.projectile[Pindex3].ai[1] = (float)Main.myPlayer;
 			}
 		}
 	}

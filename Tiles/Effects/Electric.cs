@@ -7,36 +7,41 @@ using Terraria.ModLoader;
 using Terraria.ObjectData;
 using SuperMetroid;
 
-namespace SuperMetroid.Tiles.Doors
+namespace SuperMetroid.Tiles.Effects
 {
-	public class vBlueDoor : ModTile
+	public class Electric : ModTile
 	{
 		public override void SetDefaults()
 		{
 			Main.tileFrameImportant[Type]	= true;
 			Main.tileLavaDeath[Type]		= false;
-			Main.tileSolid[Type] 			= true;
+			Main.tileSolid[Type] 			= false;
 			Main.tileMergeDirt[Type]		= false;
-			Main.tileLighted[Type] 			= true;
+			Main.tileLighted[Type] 			= false;
 			Main.tileBlockLight[Type]		= true;
 			Main.tileNoSunLight[Type]		= false;
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Vertical Closed Door");
+			name.SetDefault("Electric Block");
 			AddMapEntry(new Color(200, 150, 100), name);
 			disableSmartCursor = true;
 		}
+		
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
 		{
-			r = 0.164f;
-			g = 0.258f;
-			b = 0.478f;
+			r = 0.1f;
+			g = 0.1f;
+			b = 0.1f;
 		}
-		
-		int type = 0;
-		public override void HitWire(int i, int j)
+		public override bool PreDraw(int i, int j, SpriteBatch SB)
 		{
-			type = mod.TileType("vEmptyDoor");
-			Main.tile[i, j].type = (ushort)type;
+			for(int k = 0; k < 2; k++)
+			{
+				int a = Projectile.NewProjectile(i*16+8, j*16+8, Main.rand.Next(-1,1), 0,mod.ProjectileType("GreenSpark"), 20, 2.0f, 255);
+				Main.projectile[a].aiStyle = 1;
+				Main.projectile[a].timeLeft = 45;
+				Main.projectile[a].tileCollide = false;
+			}
+			return true;
 		}
 	}
 }

@@ -26,10 +26,10 @@ namespace SuperMetroid
 			haveVaria, haveGravity;
 		//(deprecated) to-be modified
 		public static bool
-			ballstate = false, somersault = false, xrayOn = false, 
+			ballstate = false, somersault = false, 
 			BootsOn = false, grappled = false;
 		public bool 
-			PowerArmor = false,  
+			PowerArmor = false, xrayOn = false, 
 			PowerSuit = false, VariaSuit = false, GravitySuit = false;
 		public static int
 			globalTime = 0, switchTime = 0, 
@@ -37,7 +37,7 @@ namespace SuperMetroid
 		public int counter = 0, tileTime = 0;
 		//(deprecated) to-be modified
 		public int
-			shineDirection = 0, ffTimer = 0, 
+			shineDirection = 0, ffTimer = 0, soundLoop = 40,
 			springBall = 0, numPBombs = 10, missileUpg = 10, smissileUpg = 2, reserveTank, MBbombs, pbombUpg = 2,
 			variaUpg = 1, gravityUpg = 1, upgradePercent, cbUpg;
 		public double 
@@ -418,11 +418,6 @@ namespace SuperMetroid
 			}
 		#endregion
 		#region armor
-		/*	if(item.type == mod.ItemType("PowerArmor") || item.type == mod.ItemType("VariaArmor") || item.type == mod.ItemType("GravityArmor"))
-			{
-				PowerSuit = true;
-			//	BootsOn = true;
-			}	*/
 			if(item.type == mod.ItemType("PowerArmor"))
 			{
 				if(Main.GetKeyState((int)Microsoft.Xna.Framework.Input.Keys.R) < 0 && switchTime <= 0)
@@ -430,7 +425,8 @@ namespace SuperMetroid
 					PowerSuit = !PowerSuit;
 					
 					switchTime = 45;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					if(!PowerSuit) Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/heathurt"), player.position);
+					else Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
 				}
 			}
 			if(item.type == mod.ItemType("VariaArmor"))
@@ -440,7 +436,8 @@ namespace SuperMetroid
 					VariaSuit = !VariaSuit;
 					
 					switchTime = 45;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					if(!VariaSuit) Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/heathurt"), player.position);
+					else Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
 				}
 			}
 			if(item.type == mod.ItemType("GravityArmor"))
@@ -450,7 +447,8 @@ namespace SuperMetroid
 					GravitySuit = !GravitySuit;
 					
 					switchTime = 45;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
+					if(!GravitySuit) Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/heathurt"), player.position);
+					else Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Click"), player.position);
 				}
 			}
 		#endregion
@@ -509,39 +507,28 @@ namespace SuperMetroid
 				Main.PlaySound(2,-1,-1,SoundHandler.soundID["Reserve Tank"]);
 				P.statLife += reserveTank*100;
 				reserveTank = 0;
-			}
+			}*/
 		#endregion
 		#region xray
-			soundLoop++;
-			SoundStart++;
-			if(item.name == "X-Ray Scope"){
-				if(Main.mouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed && XRayUpg == 1)
+			if(item.type == mod.ItemType("XRayScope"))
+			{
+				if(Main.mouseLeft)
 				{
-					P.nightVision = true;
+					if(soundLoop >= 0) soundLoop++;
 					xrayOn = true;
 					
-					if((float)soundLoop >= 40.92)
+					if(soundLoop >= 40)
 					{
-						Main.PlaySound(2,-1,-1,SoundHandler.soundID["XRay"]);
+						Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Item, "Sounds/Item/XRay"), player.position);
 						soundLoop = 0;
 					}
-					if(SoundStart > 1 && SoundStart < 5)
-					{
-						Main.PlaySound(2,-1,-1,SoundHandler.soundID["XRay Start"]);
-						SoundStart = 4;
-						if(SoundStart > 6)
-						{
-							SoundStart = 6;
-						}
-					}
 				}
-				if(Main.mouseState.LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Released && XRayUpg == 1)
+				if(!Main.mouseLeft)
 				{
 					xrayOn = false;
 				}
 			}
-		#endregion */
-		#endregion
+		#endregion 
 		
 		//	door transition
 			for(int i = (int)(player.position.X)/16; i < (int)(player.position.X+player.width)/16; i++)

@@ -9,7 +9,7 @@ using SuperMetroid;
 
 namespace SuperMetroid.Tiles.Doors
 {
-	public class vBlueDoor : ModTile
+	public class vSuperMissileDoor : ModTile
 	{
 		public override void SetDefaults()
 		{
@@ -21,15 +21,15 @@ namespace SuperMetroid.Tiles.Doors
 			Main.tileBlockLight[Type]		= true;
 			Main.tileNoSunLight[Type]		= false;
 			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Vertical Closed Door");
-			AddMapEntry(new Color(200, 150, 100), name);
+			name.SetDefault("Vertical Super Missile Door");
+			AddMapEntry(new Color(25, 125, 0), name);
 			disableSmartCursor = true;
 		}
 		public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b)
 		{
-			r = 0.164f;
-			g = 0.258f;
-			b = 0.478f;
+			r = 0.149f;
+			g = 0.537f;
+			b = 0.0f;
 		}
 		
 		int type = 0;

@@ -77,10 +77,10 @@ namespace SuperMetroid.Tiles.Doors
 			return false;
 		}
 
-		int type = 0; 
+		int type = 1; 
 		public override void AnimateTile(ref int frame, ref int frameCounter)
 		{
-			type = mod.TileType("EmptyChozoDoor");
+		//	type = mod.TileType("EmptyChozoDoor");
 			frameCounter++;
 			if(frameCounter > 5)
 			{
@@ -88,7 +88,9 @@ namespace SuperMetroid.Tiles.Doors
 				frame++;
 				if(frame > 4)
 				{
-					Main.tile[x, y].type = (ushort)type;
+					frame = 0;
+				//	ERROR: object reference not set to instance of an object
+				//	if(Main.tile[x, y].type != null) Main.tile[x, y].type = (ushort)type;
 				}
 			}
 		}
