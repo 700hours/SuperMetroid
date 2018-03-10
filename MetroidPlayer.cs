@@ -24,12 +24,12 @@ namespace SuperMetroid
 			haveCharge, haveWave, haveSpazer, haveIce, havePlasma,
 			haveSpeed, haveJump, haveScrew, haveSpaceJump, haveScope, haveGrapple,
 			haveVaria, haveGravity;
-		 //(deprecated) to-be modified
-		public bool
+		//(deprecated) to-be modified
+		public static bool
 			ballstate = false, somersault = false, xrayOn = false, 
-			BootsOn = false; 
-		public static bool 
-			grappled = false, PowerArmor = false,  
+			BootsOn = false, grappled = false;
+		public bool 
+			PowerArmor = false,  
 			PowerSuit = false, VariaSuit = false, GravitySuit = false;
 		public static int
 			globalTime = 0, switchTime = 0, 
@@ -558,6 +558,27 @@ namespace SuperMetroid
 					}
 				}
 			}
+			//gravity suit underwater effect
+			if(PowerSuit && ((VariaSuit && GravitySuit) || (!VariaSuit && GravitySuit)))
+			{
+				if(!player.merman && Collision.WetCollision(player.position, player.width, player.height))
+				{
+					Player.jumpHeight -= 10;
+					Player.jumpSpeed += 0.5f;
+					Vector2 vector19 = player.velocity;
+					player.velocity = Collision.TileCollision(player.position, player.velocity, player.width, player.height, player.controlDown, false);
+					Vector2 value3 = player.velocity * 0.5f;
+					if (player.velocity.X != vector19.X)
+					{
+						value3.X = player.velocity.X;
+					}
+					if (player.velocity.Y != vector19.Y)
+					{
+						value3.Y = player.velocity.Y;
+					}
+					player.position += value3;
+				}
+			}
 		}
 		
 		public void DoorToggle(int i, int j)
@@ -580,36 +601,22 @@ namespace SuperMetroid
 			if(Top || Middle || Bottom) return true;
 			else return false;
 		}
-		
-		public static bool TileCollision(int x,int y,int Radius,int Type)
-		{
-			for(int i = x - Radius; i < x + Radius; i++){
-			for(int j = y - Radius; j < y + Radius; j++){
-			Vector2 Position = new Vector2(i, j);
-			
-			if(Main.tile[(int)Position.X, (int)Position.Y].active() && Main.tile[(int)Position.X/16, (int)Position.Y/16].type == (ushort)Type) return true;
-					else return false;
-				}
-			}
-			return false;
-		}
-		
+	
 		Texture2D Helmet;
 		Texture2D Body;
 		Texture2D Legs;
 		public override void ModifyDrawInfo(ref PlayerDrawInfo drawinfo)
 		{
-			//!	armor draw code
-			#region
+		#region armor draw
 		//	drawinfo	
 			PlayerHeadDrawInfo drawInfo = new PlayerHeadDrawInfo();
 			drawInfo.spriteBatch = Main.spriteBatch;
 			drawInfo.drawPlayer = player;
+		
 		//	draw variables
 			SpriteEffects effects = SpriteEffects.None;
 			Vector2 origin = new Vector2((float)player.legFrame.Width * 0.5f, (float)player.legFrame.Height * 0.5f);
 			Color color = player.GetImmuneAlpha(Lighting.GetColor((int)((double)player.position.X + (double)player.width * 0.5) / 16, (int)(((double)player.position.Y + (double)player.height * 0.25) / 16.0), Color.White), 0f);
-		
 			Vector2 bodyPos = new Vector2((float)((int)(player.position.X - Main.screenPosition.X - (float)(player.bodyFrame.Width / 2) + (float)(player.width / 2))), (float)((int)(player.position.Y - Main.screenPosition.Y + (float)player.height - (float)player.bodyFrame.Height + 4f)));
 
 		//	POWER SUIT
@@ -625,15 +632,15 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 				else
 				{
@@ -641,16 +648,16 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 			}
 		//	VARIA SUIT
@@ -666,15 +673,15 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 				else
 				{
@@ -682,16 +689,16 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 			}
 		//	GRAVITY SUIT
@@ -707,15 +714,15 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 				else
 				{
@@ -723,16 +730,16 @@ namespace SuperMetroid
 				//draw head
 					Main.spriteBatch.Draw(Helmet, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				
 				//draw body
 					Main.spriteBatch.Draw(Body, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)),
-						new Rectangle?(player.bodyFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.bodyFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				//draw legs
 					Main.spriteBatch.Draw(Legs, 
 						bodyPos + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), 
-						new Rectangle?(player.legFrame), Color.White, player.bodyRotation, origin, 1f, effects, 0f);
+						new Rectangle?(player.legFrame), color, player.bodyRotation, origin, 1f, effects, 0f);
 				}
 			}
 			//	Main.spriteBatch.Draw(Main.armorLegTexture[player.legs], , (float)((int)(player.position.Y - Main.screenPosition.Y + (float)player.height - (float)player.bodyFrame.Height + 4f))) + player.bodyPosition + new Vector2((float)(player.bodyFrame.Width / 2), (float)(player.bodyFrame.Height / 2)), new Rectangle?(player.legFrame), color12, rotation, origin, 1f, effects, 0f);
@@ -1268,4 +1275,18 @@ namespace SuperMetroid
 				}
 			}
 		#endregion	
+		
+		// not used
+		public static bool TileCollision(int x,int y,int Radius,int Type)
+		{
+			for(int i = x - Radius; i < x + Radius; i++){
+			for(int j = y - Radius; j < y + Radius; j++){
+			Vector2 Position = new Vector2(i, j);
+			
+			if(Main.tile[(int)Position.X, (int)Position.Y].active() && Main.tile[(int)Position.X/16, (int)Position.Y/16].type == (ushort)Type) return true;
+					else return false;
+				}
+			}
+			return false;
+		}
 		*/

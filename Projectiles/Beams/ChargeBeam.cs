@@ -7,39 +7,31 @@ using Terraria.ModLoader;
 using SuperMetroid;
 using SuperMetroid.Tiles.Shutters;
 
-namespace SuperMetroid.Projectiles
+namespace SuperMetroid.Projectiles.Beams
 {
-	public class Missile : ModProjectile
+	public class ChargeBeam : ModProjectile
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Missile");
+			DisplayName.SetDefault("Charge Beam");
 		}
 		public override void SetDefaults()
 		{
-			projectile.width = 6;
-			projectile.height = 15;
-			projectile.aiStyle = 1;
-			projectile.timeLeft = 600;
+			projectile.width = 16;
+			projectile.height = 16;
+			projectile.aiStyle = -1;
+			projectile.timeLeft = 8800;
 			projectile.friendly = true;
 			projectile.penetrate = 1;
 			projectile.tileCollide = false;
 			projectile.ignoreWater = true;
-			projectile.scale = 1.5f;
+			projectile.scale = 1f;
 			projectile.ranged = true;
 			projectile.netUpdate = true;
 		}
-		int counter = 0;
-		bool soundInit = false;
 		
 		public override void AI()
 		{
-			if(!soundInit) 
-			{
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Missile"), projectile.position);
-				soundInit = true;
-			}
-			
 		#region tile functions
 			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
 			
@@ -52,44 +44,31 @@ namespace SuperMetroid.Projectiles
 		//	doors
 			int type4 = mod.TileType("vBlueDoor");
 			int type5 = mod.TileType("ChozoDoor");
-			int type6 = mod.TileType("MissileDoor");
-			int type7 = mod.TileType("vMissileDoor");
 			
 			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
-			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
-			
-		//  collision	
+		
+		//  collision
 			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
 			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
-			bool blueSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
-			bool chozoDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type5 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
-			bool missileDoor = (type6 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type7 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueSwitchL = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueSwitchR = (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool vblueDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueDoor = (type5 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool ball = (type8 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
-			if(collision)
+			if(collision) 
 			{
-				PreKill(0);
 				Kill(0);
 				if(correctTile)
 				{
 					KillBlock((int)tilev.X, (int)tilev.Y);
 				}
-				if(blueSwitch)
+				if(blueSwitchL || blueSwitchR)
 				{
 					ShutterSwitch((int)tilev.X, (int)tilev.Y);
 				}
-				if(chozoDoor)
+				if(vblueDoor || blueDoor)
 				{
 					DoorToggle((int)tilev.X, (int)tilev.Y);
-				}
-				if(missileDoor)
-				{
-					modPlayer.counter++;
-					Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/MDoorHit"), projectile.position);
-					if(modPlayer.counter >= 5)
-					{
-						DoorToggle((int)tilev.X, (int)tilev.Y);
-						modPlayer.counter = 0;
-					}
 				}
 				if(ball)
 				{
@@ -98,51 +77,9 @@ namespace SuperMetroid.Projectiles
 				projectile.active = false;
 			}
 		#endregion
+		}
 		
-			Color color = new Color();
-			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
-			Main.dust[dust].noGravity = true;
-			
-		//	Gold Torizo immunity check
-		/*	foreach(NPC N in Main.npc)
-			{
-				if(!N.active) continue;
-				if(N.life <= 0) continue;
-				if(N.friendly) continue;
-				if(N.dontTakeDamage) continue;
-				Rectangle projrec = new Rectangle((int)projectile.position.X+(int)projectile.velocity.X, (int)projectile.position.Y+(int)projectile.velocity.Y, projectile.width, projectile.height);
-				Rectangle nrec = new Rectangle((int)N.position.X, (int)N.position.Y, (int)N.width,(int)N.height);
-				if (projrec.Intersects(nrec))
-				{
-					if(N.type == mod.NPCType("GoldTorizo"))
-					{
-						projectile.damage = 0;
-					}
-					else
-					{ 	projectile.damage = 20;		}
-				}
-			} */
-		}
-
-		public override bool PreKill(int timeleft)
-		{
-			Main.PlaySound(mod.GetSoundSlot(SoundType.Item, "Sounds/Item/MBurst"), projectile.position);
-			return true;
-		}
-		float Radius = 12f;
-		public override void Kill(int timeleft)
-		{
-			for (int num70 = 0; num70 < 25; num70++)
-			{
-				int num71 = Dust.NewDust(new Vector2(this.projectile.position.X-Radius, this.projectile.position.Y-Radius), this.projectile.width+(int)Radius*2, this.projectile.height+(int)Radius*2, 6, 0f, 0f, 100, default(Color), 4f);
-				Main.dust[num71].velocity *= 1.4f;
-				Main.dust[num71].noGravity = true;
-				int num72 = Dust.NewDust(new Vector2(this.projectile.position.X-Radius, this.projectile.position.Y-Radius), this.projectile.width+(int)Radius*2, this.projectile.height+(int)Radius*2, 1, 0f, 0f, 100, default(Color), 2f);
-				Main.dust[num72].velocity *= 1.4f;
-				Main.dust[num72].noGravity = true;
-			}
-		}
-	#region tile interaction
+		#region tile interaction
 		public void KillBlock(int x,int y)
 		{
 			WorldGen.KillTile(x, y,	false, false, true);
@@ -151,6 +88,7 @@ namespace SuperMetroid.Projectiles
 		public void ShutterSwitch(int x,int y)
 		{
 			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
+			
 			modPlayer.tileTime = 300;
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ShutterDoor"), projectile.position);
 			int type = mod.TileType("EmptyShutter");
@@ -166,28 +104,23 @@ namespace SuperMetroid.Projectiles
 		public void DoorToggle(int x, int y)
 		{
 			var modPlayer = Main.player[projectile.owner].GetModPlayer<MetroidPlayer>(mod);
-		
-		//	to open entire door at once
+			
 			Wiring.TripWire(x, y, 1, 1);
-				
+			
 			modPlayer.tileTime = 300;
 			
 			int type = mod.TileType("vBlueDoor");
 			int type2 = mod.TileType("ChozoDoor");
-			int type3 = mod.TileType("MissileDoor");
-			int type4 = mod.TileType("vMissileDoor");
 			int transform = mod.TileType("vEmptyDoor");
-			int transform2 = mod.TileType("ChozoDoorOpening");
-			int transform3 = mod.TileType("EmptyChozoDoor");
-						
+			int transform2 = mod.TileType("EmptyChozoDoor");
+			
 			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorOpening"), projectile.position);
 			
-			if(Main.tile[x, y].type == (ushort)type || Main.tile[x, y].type == (ushort)type4) Main.tile[x, y].type = (ushort)transform;
-			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform3;
-			if(Main.tile[x, y].type == (ushort)type3) Main.tile[x, y].type = (ushort)transform3;
+			if(Main.tile[x, y].type == (ushort)type) Main.tile[x, y].type = (ushort)transform;
+			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform2;
 		}
 		#endregion
-	#region expansions
+		#region expansions
 		string[] ItemArray = new string[] 
 			{	"ChargeBeam" , "IceBeam" , "WaveBeam" , "PlasmaBeam" , "Spazer" , 
 				"HiJump" , "ScrewAttack" , "SpaceJump" , "SpeedBooster" , "XRayScope" ,
@@ -292,11 +225,14 @@ namespace SuperMetroid.Projectiles
 			WorldGen.KillTile(x, y,	false, false, true);
 		}
 	#endregion
+		public override void Kill(int timeleft)
+		{
+			for(int i = 0; i < 20; i++) 
+			{
+				int num54 = Projectile.NewProjectile(this.projectile.position.X, this.projectile.position.Y,Main.rand.Next(10)-5,Main.rand.Next(10)-5,mod.ProjectileType("DiffusionBeam"),1,0.1f,this.projectile.owner);
+				Main.projectile[num54].timeLeft = 15;
+				Main.projectile[num54].tileCollide = false;
+			}
+		}
 	}
 }
-//	Old Killblock() code
-//	for block respawn
-/*	modPlayer.tileTime = 300;
-	int type = mod.TileType("EmptyBlock");
-	Main.tile[x, y].type = (ushort)type;
-	Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);	*/		

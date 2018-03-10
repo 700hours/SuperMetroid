@@ -41,26 +41,29 @@ namespace SuperMetroid.Projectiles
 		//	blocks
 			int block = mod.TileType("CrackedBlock");
 			int block2 = mod.TileType("smBlock");
-		//	doors
+			int type12 = mod.TileType("UpgradeBall");
+		//	shutters
 			int type = 0;
 			int type2 = mod.TileType("BlueSwitchleft");
 			int type3 = mod.TileType("BlueSwitchright");
+			int type10 = mod.TileType("GreenSwitchleft");
+			int type11 = mod.TileType("GreenSwitchright");
+		//	doors
 			int type4 = mod.TileType("vBlueDoor");
 			int type5 = mod.TileType("ChozoDoor");
 			int type6 = mod.TileType("MissileDoor");
 			int type7 = mod.TileType("vMissileDoor");
 			int type8 = mod.TileType("SuperMissileDoor");
-			int type9 = mod.TileType("vSuperMissileDoor");
-			int type10 = mod.TileType("GreenSwitchleft");
-			int type11 = mod.TileType("GreenSwitchright");
+			int type9 = mod.TileType("vSuperMissileDoor");			
 			
 			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
-		//	collision	
+		//	collision
 			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
 			bool correctTile = (block == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (block2 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool shutterSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type10 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type11 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool chozoDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type5 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			bool missileDoor = (type6 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type7 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type8 == Main.tile[(int)tilev.X, (int)tilev.Y].type) || (type9 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool ball = (type12 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
 			if(collision)
 			{
 				PreKill(0);
@@ -80,6 +83,10 @@ namespace SuperMetroid.Projectiles
 				if(missileDoor)
 				{
 					DoorToggle((int)tilev.X, (int)tilev.Y);
+				}
+				if(ball)
+				{
+					DropRandomUpgrade((int)tilev.X, (int)tilev.Y, Main.player[projectile.owner]);
 				}
 				projectile.active = false;
 			}
@@ -187,5 +194,111 @@ namespace SuperMetroid.Projectiles
 			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform3;
 			if(Main.tile[x, y].type == (ushort)type3 || Main.tile[x, y].type == (ushort)type5) Main.tile[x, y].type = (ushort)transform3;
 		}
+		
+		#region expansions
+		string[] ItemArray = new string[] 
+			{	"ChargeBeam" , "IceBeam" , "WaveBeam" , "PlasmaBeam" , "Spazer" , 
+				"HiJump" , "ScrewAttack" , "SpaceJump" , "SpeedBooster" , "XRayScope" ,
+				"VariaSuit" , "GravitySuit" , 
+				"Missile" , "SuperMissile" , "EnergyTank" , "ReserveTank" };
+		string RandomItem;
+		public void DropRandomUpgrade(int x, int y, Player player)
+		{
+			var modPlayer = player.GetModPlayer<MetroidPlayer>(mod);
+			
+			RandomItem = ItemArray[Main.rand.Next(0, ItemArray.Length - 1)];
+			if(RandomItem != "VariaSuit" && RandomItem != "GravitySuit" && RandomItem != "Missile" && RandomItem != "SuperMissile" && RandomItem != "EnergyTank" && RandomItem != "ReserveTank")
+			{
+				if(RandomItem == "ChargeBeam" && !modPlayer.haveCharge)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveCharge = true;
+				}
+				if(RandomItem == "IceBeam" && !modPlayer.haveIce)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveIce = true;
+				}
+				if(RandomItem == "WaveBeam" && !modPlayer.haveWave)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveWave = true;
+				}
+				if(RandomItem == "Spazer" && !modPlayer.haveSpazer)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpazer = true;
+				}
+				if(RandomItem == "PlasmaBeam" && !modPlayer.havePlasma)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.havePlasma = true;
+				}
+				if(RandomItem == "SpeedBooster" && !modPlayer.haveSpeed)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpeed = true;
+				}
+				if(RandomItem == "HiJump" && !modPlayer.haveJump)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveJump = true;
+				}
+				if(RandomItem == "ScrewAttack" && !modPlayer.haveScrew)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveScrew = true;
+				}
+				if(RandomItem == "SpaceJump" && !modPlayer.haveSpaceJump)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpaceJump = true;
+				}
+				if(RandomItem == "XRayScope" && !modPlayer.haveScope)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveSpaceJump = true;
+				}
+				if(RandomItem == "GrappleBeam" && !modPlayer.haveGrapple)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveGrapple = true;
+				}
+				if(RandomItem == "VariaSuit" && !modPlayer.haveVaria)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveVaria = true;
+				}
+				if(RandomItem == "GravitySuit" && !modPlayer.haveGravity)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType(RandomItem), 1, false, -1, true, false);
+					modPlayer.haveGravity = true;
+				}
+			}
+			else 
+			{
+				if(RandomItem == "Missile" && modPlayer.missileUpg < 50)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType("Missile"), 5, false, -1, true, false);
+					modPlayer.missileUpg += 1;
+				}
+				if(RandomItem == "SuperMissile" && modPlayer.smissileUpg < 10)
+				{
+					Item.NewItem(new Vector2(x*16, y*16), 8, 8, mod.ItemType("SuperMissile"), 5, false, -1, true, false);
+					modPlayer.smissileUpg += 1;
+				}
+				if(RandomItem == "EnergyTank" && player.statLifeMax < 400)
+				{
+					player.statLifeMax += 20;
+					player.statLife += 20;
+				}
+				if(RandomItem == "ReserveTank" && modPlayer.reserveTank < 5)
+				{
+					modPlayer.reserveTank += 1;
+				}
+			}
+			WorldGen.KillTile(x, y,	false, false, true);
+		}
+	#endregion
 	}
 }
