@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -490,8 +491,8 @@ namespace SuperMetroid
 				}
 			}
 			return false;
-		}
-		
+  	}	*/
+	/*	}
 		public override void DrawEffects(PlayerDrawInfo drawinfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
 		{
 			//!	armor draw code
@@ -929,8 +930,8 @@ namespace SuperMetroid
 			//	player.wings = 1;
 			//	LetDraw = true;
 			//	return true;
-			} */
+			} 
 			#endregion
-		}
+		}	*/
 	}
 }
