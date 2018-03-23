@@ -51,8 +51,8 @@ namespace SuperMetroid.Projectiles
 		#endregion
 		if(this.explode == 44)
 			{
-				Projectile.NewProjectile(projectile.Center.X+144,projectile.Center.Y,0,0,mod.ProjectileType("powerbombExplosion"),0,0,projectile.owner);
-				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Power Pomb"), projectile.position);
+			//	Projectile.NewProjectile(projectile.Center.X+144,projectile.Center.Y,0,0,mod.ProjectileType("powerbombExplosion"),0,0,projectile.owner);
+				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/PowerBomb"), projectile.position);
 			}
 		}
 		public override void Kill(int timeleft)

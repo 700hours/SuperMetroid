@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using SuperMetroid;
+using SuperMetroid.Tiles.Shutters;
 
 namespace SuperMetroid.Projectiles
 {
@@ -21,7 +23,7 @@ namespace SuperMetroid.Projectiles
 			projectile.timeLeft = 600;
 			projectile.friendly = true;
 			projectile.penetrate = 1;
-			projectile.tileCollide = true;
+			projectile.tileCollide = false;
 			projectile.ignoreWater = true;
 			projectile.scale = 1.5f;
 			projectile.ranged = true;
@@ -31,15 +33,50 @@ namespace SuperMetroid.Projectiles
 		bool soundInit = false;
 		public override void AI()
 		{
-			if(!soundInit) {
+			if(!soundInit) 
+			{
 				Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/Missile"), projectile.position);
 				soundInit = true;
 			}
-		//	projectile.AI(true);
+			
+		#region tile functions
+			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
+			int type = mod.TileType("CrackedBlock");
+			int type2 = mod.TileType("BlueSwitchleft");
+			int type3 = mod.TileType("vBlueDoor");
+			int type4 = mod.TileType("ChozoDoor");
+			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
+			bool collision = Main.tile[(int)tilev.X, (int)tilev.Y].active() && (Main.tileSolid[T.type] == true);
+			bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueSwitch = (type2 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool vblueDoor = (type3 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			bool blueDoor = (type4 == Main.tile[(int)tilev.X, (int)tilev.Y].type);
+			if(collision) 
+			{
+				PreKill(0);
+				Kill(0);
+				if(correctTile)
+				{
+					KillBlock((int)tilev.X, (int)tilev.Y);
+				}
+				if(blueSwitch)
+				{
+					ShutterSwitch((int)tilev.X, (int)tilev.Y);
+				}
+				if(vblueDoor || blueDoor)
+				{
+					DoorToggle((int)tilev.X, (int)tilev.Y);
+				}
+				projectile.active = false;
+			}
+		#endregion
+		
 			Color color = new Color();
 			int dust = Dust.NewDust(new Vector2((float) projectile.position.X, (float) projectile.position.Y), projectile.width, projectile.height, 6, 0, 0, 100, color, 2.0f);
 			Main.dust[dust].noGravity = true;
-			foreach(NPC N in Main.npc)
+			
+
+		/*	foreach(NPC N in Main.npc)
 			{
 				if(!N.active) continue;
 				if(N.life <= 0) continue;
@@ -49,7 +86,7 @@ namespace SuperMetroid.Projectiles
 				Rectangle nrec = new Rectangle((int)N.position.X, (int)N.position.Y, (int)N.width,(int)N.height);
 				if (projrec.Intersects(nrec))
 				{
-					if(N.type == mod.NPCType("Gold Torizo"))
+					if(N.type == mod.NPCType("GoldTorizo"))
 					{
 						projectile.damage = 0;
 					}
@@ -79,11 +116,12 @@ namespace SuperMetroid.Projectiles
 				//	Config.OpenCustomDoor(projX-4, projY, 1, Config.tileDefs.doorToggle[type]);
 				//	ModPlayer.openDoor = 180;
 				}
-			}
+			}*/
 		}
+
 		public override bool PreKill(int timeleft)
 		{
-			Main.PlaySound(mod.GetSoundSlot(SoundType.Custom, "Sounds/Custom/MBurst"), projectile.position);
+			Main.PlaySound(mod.GetSoundSlot(SoundType.Item, "Sounds/Item/MBurst"), projectile.position);
 			return true;
 		}
 		float Radius = 12f;
@@ -98,6 +136,35 @@ namespace SuperMetroid.Projectiles
 				Main.dust[num72].velocity *= 1.4f;
 				Main.dust[num72].noGravity = true;
 			}
+		}
+
+		public void KillBlock(int x,int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			int type = mod.TileType("EmptyBlock");
+			Main.tile[x, y].type = (ushort)type;
+			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
+		}
+		public void ShutterSwitch(int x,int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/ShutterDoor"), projectile.position);
+			int type = mod.TileType("EmptyShutter");
+			if(Main.tile[x, y].type == mod.TileType("BlueSwitchleft"))
+			{
+				for(int i = 0; i < 4; i++) Main.tile[x+1, (y+1)+i].type = (ushort)type;
+			}
+		}
+		public void DoorToggle(int x, int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			int type = mod.TileType("vBlueDoor");
+			int type2 = mod.TileType("ChozoDoor");
+			int transform = mod.TileType("vEmptyDoor");
+			int transform2 = mod.TileType("ChozoDoorOpening");
+			Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/Custom/DoorOpening"), projectile.position);
+			if(Main.tile[x, y].type == (ushort)type) Main.tile[x, y].type = (ushort)transform;
+			if(Main.tile[x, y].type == (ushort)type2) Main.tile[x, y].type = (ushort)transform2;
 		}
 	}
 }

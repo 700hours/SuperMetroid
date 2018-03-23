@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using Terraria.GameInput;
+using SuperMetroid.Tiles.Breakables;
 
 namespace SuperMetroid.Projectiles
 {
@@ -48,6 +49,29 @@ namespace SuperMetroid.Projectiles
 						this.projectile.frame = 0;
 					}
 		#endregion
+			
+			Vector2 tilev = new Vector2(projectile.position.X/16, projectile.position.Y/16);
+			int radius = 1;
+			int type = mod.TileType("CrackedBlock");
+			Tile T = Main.tile[(int)tilev.X, (int)tilev.Y];
+			for(int i = -1; i < 1; i++){
+				bool correctTile = (type == Main.tile[(int)tilev.X + i, (int)tilev.Y].type);
+				if(correctTile) 
+				{
+					KillBlock((int)tilev.X + i, (int)tilev.Y);
+					Kill(0);
+					projectile.active = false;
+				}
+			}
+			for(int j = -1; j < 1; j++){
+				bool correctTile = (type == Main.tile[(int)tilev.X, (int)tilev.Y + j].type);
+				if(correctTile) 
+				{
+					KillBlock((int)tilev.X, (int)tilev.Y + j);
+					Kill(0);
+					projectile.active = false;
+				}
+			}
 		}
 		
 		public override void Kill(int timeleft)
@@ -148,12 +172,17 @@ namespace SuperMetroid.Projectiles
 					Main.player[projectile.owner].velocity.Y = -Xthreshold;
 				}
 			}
-		//	for(int i = (int)(projectile.position.X-BombRadius)/16; i < (int)(projectile.position.X+BombRadius)/16; i++){
-		//	for(int j = (int)(projectile.position.Y-BombRadius)/16; j < (int)(projectile.position.Y+BombRadius)/16; j++){
-		//		Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBBlock", i, j, null);
-		//		Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBlock", i, j, null);
-		//		}
-		//	}
+			
+		/*	for(int i = (int)(projectile.position.X-BombRadius)/16; i < (int)(projectile.position.X+BombRadius)/16; i++) {
+				for(int j = (int)(projectile.position.Y-BombRadius)/16; j < (int)(projectile.position.Y+BombRadius)/16; j++) {
+					if(Main.tile[i, j].type == mod.TileType("CrackedBlock"))
+					{
+						CrackedBlock.KillBlock(i, j);
+					}
+				//	Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBBlock", i, j, null);
+				//	Codable.RunTileMethod(false, new Vector2(i,j), Main.tile[i, j].type, "KillBlock", i, j, null);
+				}
+			}	*/
 		}
 
 
@@ -188,6 +217,15 @@ namespace SuperMetroid.Projectiles
 			
 			return A1[0]-A1[1];
 		#endregion
+		}
+		public void KillBlock(int x,int y)
+		{
+			GlobalPlayer.tileTime = 300;
+			int type = mod.TileType("CrackedBlock");
+			int type2 = mod.TileType("EmptyBlock");
+			bool correctTile = (type == Main.tile[x, y].type);
+			if(correctTile) Main.tile[x, y].type = (ushort)type2;
+			Projectile.NewProjectile(x,y,0,0,mod.ProjectileType("Crumble"),0,0,Main.myPlayer);
 		}
 	}
 }

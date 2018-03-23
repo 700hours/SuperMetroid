@@ -146,7 +146,7 @@ namespace SuperMetroid.NPCs.Bosses
 			if(frames == 460)				//despawn
 			{	
 				npc.active = false;
-				NPC.NewNPC((int) (npc.position.X+npc.width/2) + 16, (int) (npc.position.Y+npc.height/1.3f), mod.NPCType("Torizo"), npc.whoAmI);
+				NPC.NewNPC((int) (npc.position.X+npc.width/2)-24, (int) (npc.position.Y+npc.height/1.2f)+8, mod.NPCType("Torizo"), npc.whoAmI);
 			}
 		}
 		public override void AI()
